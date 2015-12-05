@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    body {
+      padding-top: 40px;
+	  padding-bottom: 40px;
+ 	  background-color: white;
+         }
+    .login-box {
+    max-width: 330px;
+    margin: 0 auto;
+   		}
+    .login-box .form-control {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  
+  <div class="login-box">
+  <h1> Login in here </h1>
+  <form action="/checklogin" method="post">
+    <input type="text" name="userField" placeholder="Enter User Name">
+    <br>
+    <input type="text" name="passwordField" placeholder="Enter Password">
+    <br>
+    <p> </p>
+   <br><br> 
+    <input type="submit" value="Login">
+  </form>
+  <font color = 'red'> <%=message%> </font>
+  </div>
+  <br>  
+  <a href= "/signup"> Click to Sign Up </a>
+  
+</body>
+
+<footer>
+<%=footer%>
+</footer>
+
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+  <head><title>Map</title>
+  <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    body {
+      padding-top: 40px;
+	  padding-bottom: 40px;
+ 	  background-color: white;
+         }
+    .login-box {
+    max-width: 330px;
+    margin: 0 auto;
+   		}
+    .login-box .form-control {
+      margin-bottom: 10px;
+    }
+  </style>
+ 
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+  </script><script type="text/javascript">
+
+	
+  </script>
+</head>
+
+<body>
+  <div id="map" style="width:500px;height:500px;"></div>
+  <div id="pos"></div>
+  <div id="dataFromServer"></div> 
+
+ 
+
+ <br> 
+ 
+ <h1> Add New Restaurant Review </h1>
+ 
+  <form id="form" method="post">
+    <input type="text" id="formLatitude" name="latField" placeholder="Enter Latitude" required> 
+    <br>
+    <input type="text" id="formLongitude" name="longField" placeholder="Enter longitude" required> 
+    <br>
+     <input type="text" name="nameField" placeholder="Enter Name" required>
+    <br>
+     <input type="text" name="descField" placeholder="Enter Description" required>
+    <br>
+    <p> </p>
+   <br><br> 
+    <input id="submitButton" type="submit" value="Add" />
+  </form>  
+  
+  <script type="text/javascript">
+  
+  	var map;
+	var markers = [];  // Stores all the markers 
+	var id = 0; // id of marker that is constantly incremented 
+	var defaultUser;
+	// 1) Load Map Logic 	
+	var loadMap = function() {	
+		defaultUser = '<%= username %>';	
+    	var myOptions = {
+           	center: new google.maps.LatLng(39.952335, -75.163789),
+           	zoom: 11,
+           	mapTypeId: google.maps.MapTypeId.ROADMAP
+    	};
+    	
+	  	map = new google.maps.Map(document.getElementById("map"), myOptions);
+	  	
+	  	google.maps.event.addListener(map, 'click',
+			function( event ){
+			   	document.getElementById('formLatitude').value
+			 	= event.latLng.lat(); 
+			 	
+			 	document.getElementById('formLongitude').value
+			 	= event.latLng.lng(); 
+		    }		    
+		);		
+			addMap();						
+	};
+	
+	var loadMapAjax = function(data) {		
+    	var myOptions = {
+           	center: new google.maps.LatLng(39.952335, -75.163789),
+           	zoom: 11,
+           	mapTypeId: google.maps.MapTypeId.ROADMAP
+    	};
+    	
+	  	map = new google.maps.Map(document.getElementById("map"), myOptions);
+	  	
+	  	google.maps.event.addListener(map, 'click',
+			function( event ){
+			   	document.getElementById('formLatitude').value
+			 	= event.latLng.lat(); 
+			 	
+			 	document.getElementById('formLongitude').value
+			 	= event.latLng.lng(); 
+		    }		    
+		);		
+			addMapAjax(data);						
+	};
+	
+	
+	// 2) Add Markers to map logic 		
+	var addMap = function() {
+		<% for(var i=0; i < data.length ; i++) { %>
+			var myPos = new google.maps.LatLng(parseFloat(<%= data[i]['value']['latitude'] %>), 
+												parseFloat(<%= data[i]['value']['longitude'] %>));
+			
+	
+			var iconType = ""; 
+			<% if (data[i]['value']['creator'] == username) { %> 
+					iconType = 'http://google.com/mapfiles/ms/micons/yellow-dot.png'; 
+			<%  } else { %>
+				iconType = 'http://google.com/mapfiles/ms/micons/red-dot.png'; 
+			<%  } %>
+			
+			var marker = new google.maps.Marker({
+			  position: myPos, 
+			  draggable: false, 
+			  icon: iconType
+			});
+			
+			marker.index = <%= data[i]['inx'] %>;
+			marker.title = "<%= data[i]['key'] %>";
+			
+					
+			var boldedNameTwo = '<%= data[i]['key'] %>'; 
+			var boldedName = '<div><div style="font-weight:bold;">' + '<%= data[i]['key'] %>' + '</div>';
+						  
+			marker['infowindow'] = new google.maps.InfoWindow({
+			  content:   boldedName + 
+			  			"<br>Description: " + '<%= data[i]['value']['description'] %>' + 
+			  			"<br>Added by: " + '<%= data[i]['value']['creator'] %>' 
+			});
+			google.maps.event.addListener(marker, 'click', function() {
+			  this['infowindow'].open(map, this);
+			});
+			
+    		markers[marker.index] = marker; 
+    
+			google.maps.event.addListener(marker, "rightclick", 
+    				function (point) { 
+    					// console.log("deleting marker ------------------------------"); 
+    					id = this.index; 
+			    		delMarker(id); 
+			    	}
+			   	);	    	   				
+			marker.setMap(map);				
+	<% }  %>
+	};
+	
+		
+	var addMapAjax = function(data) {
+		 for(var i=0; i < data.length ; i++) { 
+			var myPos = new google.maps.LatLng(parseFloat(data[i]['value']['latitude']), 
+												parseFloat(data[i]['value']['longitude']));
+			
+			var iconType = ""; 
+			if (data[i]['value']['creator'] == defaultUser) { 
+					iconType = 'http://google.com/mapfiles/ms/micons/yellow-dot.png'; 
+			 } else {
+				iconType = 'http://google.com/mapfiles/ms/micons/red-dot.png'; 
+			 }
+			
+			var marker = new google.maps.Marker({
+			  position: myPos, 
+			  draggable: false, 
+			  icon: iconType
+			});
+			
+			marker.index = data[i]['inx'];
+			marker.title = data[i]['key'];
+			marker.creator = data[i]['value']['creator'];			
+					
+		    var boldedName = '<div><div style="font-weight:bold;">' + data[i]['key'] + '</div>';
+					
+						  
+			marker['infowindow'] = new google.maps.InfoWindow({
+			  content:   boldedName + 
+			  			"<br>Description: " + data[i]['value']['description'] + 
+			  			"<br><i> Added by: " + data[i]['value']['creator'] + "</i>" 
+			});
+			
+			google.maps.event.addListener(marker, 'click', function() {
+			  this['infowindow'].open(map, this);
+			});
+			
+			// Set ids to each of the marker 
+    		markers[marker.index] = marker; 
+    
+			google.maps.event.addListener(marker, "rightclick", 
+    				function (point) { 
+    					// console.log("deleting marker ------------------------------"); 
+    					id = this.index; 
+			    		delMarker(id); 
+			    	}
+			   	);	    	   	
+			
+			marker.setMap(map);					
+	  }  
+	};
+	
+	
+	    
+	    
+	
+	// 3) Adding / Removing marker / map  from google maps 
+	// For adding markers individually 
+	var addNewMarker = function(data) {			
+			var myPos = new google.maps.LatLng(parseFloat(data['latitude']), 
+												parseFloat(data['longitude']));
+			
+			var iconType = 'http://google.com/mapfiles/ms/micons/yellow-dot.png'; 
+			var marker = new google.maps.Marker({
+			  position: myPos, 
+			  draggable: false, 
+			  icon: iconType
+			});
+			
+			marker.index = data['inx'];
+			marker.title = data['title'];
+			marker.user = '<%= username %>';
+				
+			var boldedName = '<div><div style="font-weight:bold;">' +  data['title'] + '</div>';
+						  
+			marker['infowindow'] = new google.maps.InfoWindow({
+			  content:   boldedName + 
+			  			"<br>Description: " + data['description'] + 
+			  			"<br>Added by: " + data['creator'] 
+			});
+			
+			google.maps.event.addListener(marker, 'click', function() {
+			  this['infowindow'].open(map, this);
+			});
+			
+			google.maps.event.addListener(marker, "rightclick", 
+    				function (point) { 
+    					id = this.index; 
+			    		delMarker(id); 
+			    	}
+			 );	    	   	
+			marker.setMap(map);			
+			
+	    };
+	    
+	var delMarker = function (id) {
+		console.log("id is", id);
+    	marker = markers[id]; 
+    	keyword = marker.title;
+    	console.log("Trying to delete marker");
+    	console.log("creator marker is: ", marker.creator);
+    	    	console.log("default user: ", defaultUser);
+    	
+    	if (marker.creator != defaultUser) {
+    		alert("Error: You are not the creator!");
+    		return;
+    	}
+    	
+    	var markerData = {
+ 			'key'	: keyword,
+ 			'inx'	: id 
+ 		}; 
+    	
+    	// Have to update the database and load again 
+         //Post with ajax  	
+ 		 $.post('/delete', markerData, function(response) 
+           {
+            // Add new marker based on data returned from the server             
+    			marker.setMap(null);
+           })
+           // in case there is an error 
+           .fail(function(error) { alert(error.responseJSON) });  
+    	
+	};
+	
+	var refreshMap = function() {
+	 	map = null;   	
+    	 $.get('/getajaxrestaurants', function(response) 
+           {
+             loadMapAjax(JSON.parse(response))  
+             
+           })
+           // in case there is an error 
+           .fail(function(error) { alert(error.responseJSON) });            
+    } 
+    
+   
+ 
+	// 4) Initialize functions onload 
+	window.onload = function() {
+		loadMap();
+		refreshMap();
+      	setInterval(refreshMap, 5 * 1000);    
+	
+	};
+	
+	
+	//----------------------------------------------------------------
+  
+  
+  // Event Handling part of code -- 
+  
+  	// 1) Use a submit handler for the form
+  
+	$( "#form" ).submit(function( event ) {
+	   // stop the form from submitting and refreshing
+        event.preventDefault();
+        event.stopPropagation();
+        
+ 		var formData = {
+ 			'latField'	: $('input[name=latField]').val(), 
+ 			'longField'	: $('input[name=longField]').val(), 
+ 			'nameField'	: $('input[name=nameField]').val(), 
+ 			'descField'	: $('input[name=descField]').val()
+ 		}; 
+ 		
+ 		
+ 		var stringData = JSON.stringify(formData);
+ 		
+ 	// 2) process the form with ajax 
+ 	
+ 		 $.post('/ajaxrestaurant', formData, function(response) 
+           {
+            // Add new marker based on data returned from the server 
+            addNewMarker(JSON.parse(response))           
+           })
+           // in case there is an error 
+           .fail(function(error) { alert(error.responseJSON) });  
+    	});	
+  
+  </script>
+  
+  <br>
+  <a href= "/logout"> Click to Log Out </a>  
+  
+</body>
+</html>
