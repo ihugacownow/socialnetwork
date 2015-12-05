@@ -13,21 +13,83 @@ var async = require('async');
 
 /* Here is our initial data. */
 
-var userDBname = "users";
-var restaurantDBname = "restaurants";
+var usersDBname = "users";
+var postsDBname = "restaurants";
+var commentsDBname = "comments";
+var affiliationsDBname = "affiliations";
+var friendsDBname = "friends";
+var usernamesDBname = "usernames";
 
-var users = [["mickey", JSON.stringify({
-	"password" : "mouse", 
-	"fullname" : "Mickey Mouse"})
-	]];
+var users = [
+	[0, JSON.stringify({
+		"firstname" : "Brian",
+		"lastname" : "Hirsh",
+		"email" : "hirshb@sas.upenn.edu",
+		"password" : "password1",
+		"status" : "Brian's status",
+		"affiliation" : "University of Pennsylvania",
+		"interests" : ["computer science"],
+		"birthday" : "April 20th 1996",
+		"online" : false,
+		"posts" : [0],
+		"comments" : [],
+		"friendposts" : [0]
+	})
+	], [1, JSON.stringify({
+		"firstname" : "Wai",
+		"lastname" : "Wu",
+		"email" : "wuwc@sas.upenn.edu",
+		"password" : "password2",
+		"status" : "Wai's status",
+		"affiliation" : "University of Pennsylvania",
+		"interests" : ["computer science"],
+		"birthday" : "April 20th 1996",
+		"online" : false,
+		"posts" : [],
+		"comments" : [0],
+		"friendposts" : [0]
+	})
+]];
 
-var restaurants = [["White Dog", JSON.stringify( 
-		{"latitude" : 39.953637, 
-			"longitude" : -75.192883, 
-			"description" : "Very delicious", 
-			"creator" : "mickey"
-		}
-		)]];
+
+var posts = [
+	[0, JSON.stringify({
+		"owner1" : 0, 
+		"owner2" :1, 
+		"text" : "love u ;)", 
+		"commentIDs" : [0]
+	})
+]];
+
+
+var comments = [
+	[0, JSON.stringify({
+		"postID" : 0,
+		"owner" : 1,
+		"text" : "love u too sexy"
+	})
+]];
+
+var affiliations = [
+	["University of Pennsylvania", 
+		[0, 1]
+]];
+
+var friends = [
+		[0, 1],
+		[1, 0]
+];
+
+var usernames = [
+	["hirshb@sas.upenn.edu", JSON.stringify({
+		"password" : "password1",
+		"userID" : 0
+	})
+	], ["wuwc@sas.upenn.edu", JSON.stringify({
+		"password" : "password2",
+		"userID" : 1
+	})
+]]
 
 //  This function uploads our data in a generic way 
 var uploadThings = function(things, table, callback) {
@@ -50,6 +112,10 @@ var uploadThings = function(things, table, callback) {
 
 var i = {value: 0};
 var j = {value: 0}; 
+var k = {value: 0};
+var l = {value: 0}; 
+var m = {value: 0};
+var n = {value: 0}; 
 
 //data[0] is the name of the table, data[1] is the array of information 
 function setup(err, data, counter) {
@@ -87,6 +153,21 @@ function setup(err, data, counter) {
 		});
 	}
 }
+var usersDBname = "users";
+var postsDBname = "restaurants";
+var commentsDBname = "comments";
+var affiliationsDBname = "affiliations";
+var friendsDBname = "friends";
+var usernamesDBname = "usernames";
 
-setup(null, [userDBname, users, null], i);
-setup(null, [restaurantDBname, restaurants, null], j);
+setup(null, [usersDBname, users, null], i);
+setup(null, [postsDBname, posts, null], j);
+setup(null, [commentsDBname, comments, null], k);
+setup(null, [affiliationsDBname, affiliations, null], l);
+setup(null, [friendsDBname, friends, null], m);
+setup(null, [usernamesDBname, usernames, null], n);
+
+
+
+
+
