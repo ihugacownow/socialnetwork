@@ -9,7 +9,7 @@ var getMain = function(req, res) {
 
 var postLogin = function(req, res) {
 	var userInput = req.body.userField;
-	var passwordInput = req.body.passwordField; 
+	var passwordInput = req.body.passwordField;
 
 	// Check if username or password is missing 
 	if (userInput == "" || passwordInput == "") {
@@ -97,33 +97,65 @@ var getSignup = function(req, res) {
 };
 
 var postCreateAccount = function(req, res) {
-	var userInput = req.body.userField;
-	var passwordInput = req.body.passwordField; 
-	var nameInput = req.body.nameField; 
+	// var userInput = req.body.userField;
+	// var passwordInput = req.body.passwordField; 
+	// var nameInput = req.body.nameField; 
+
+	var firstname = req.body.firstNameField;
+	var lastname = req.body.lastNameField;
+	var email = req.body.emailAddressField;
+	var password = req.body.passwordField; 
 
 	// Check for empty fields 
 	if (userInput == "" || passwordInput == "" || nameInput == "") {
 		res.render('signup.ejs', {message: "Fill up the Empty Fields!"});
 	} else {
-		// Create value json object to put inside table 
+		// Create value json object to put inside table
 		var value = JSON.stringify({
-			'password' : passwordInput, 
-			'fullname': nameInput
-		});	
-		// Call database put user function 
-		db.putUser(userInput, value, function(data, err) {
-			if (err) {
-				// errors returned by kvs.exists function 
-				res.render('signup.ejs', {message: err});
-			} else if (data) {			
-				// If signup successful, update session username and redirect to rest 
-				req.session.username = userInput; 
-				res.redirect('/restaurants');			
-			} else {
-				// When both err and data are null, user already exists  
-				res.render('signup.ejs', {message: "User Already Exists!"});
-			}
+		"firstname" : firstname,
+		"lastname" : lastname,
+		"email" : email,
+		"password" : password,
+		"status" : status,
+		"affiliation" : "",
+		"interests" : [],
+		"birthday" : "",
+		"online" : false,
+		"posts" : [0],
+		"comments" : [],
+		"friendposts" : [0]
 		});
+		// Call database to add user function
+		db.putUser(value, function(data, err) {
+			if (err) {
+				res.render('signup.ejs', {message: err}); //Errors returned by KVS
+			} else {
+				//the data value will return the URL for the user (firstname.lastname.inx)
+				//pass in the response from the server to our app function
+				req.session.username = 
+				res.redirect('/')
+			}
+		})
+
+		// // Create value json object to put inside table 
+		// var value = JSON.stringify({
+		// 	'password' : passwordInput, 
+		// 	'fullname': nameInput
+		// });	
+		// // Call database put user function 
+		// db.putUser(userInput, value, function(data, err) {
+		// 	if (err) {
+		// 		// errors returned by kvs.exists function 
+		// 		res.render('signup.ejs', {message: err});
+		// 	} else if (data) {			
+		// 		// If signup successful, update session username and redirect to rest 
+		// 		req.session.username = userInput; 
+		// 		res.redirect('/restaurants');			
+		// 	} else {
+		// 		// When both err and data are null, user already exists  
+		// 		res.render('signup.ejs', {message: "User Already Exists!"});
+		// 	}
+		// });
 	}
 };
 

@@ -10,7 +10,8 @@ var app = express();
 var session = require('express-session'); 
 var sess = {
 		secret: 'password',
-		username: ''
+		username: '',
+      password: ''
 }
 app.use(session(sess));
 app.use(express.bodyParser());
