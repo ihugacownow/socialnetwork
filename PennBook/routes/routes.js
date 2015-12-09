@@ -7,6 +7,13 @@ var getMain = function(req, res) {
 	});
 };
 
+var getTestMain = function(req, res) {
+	res.render('index.ejs', { 
+		message: "", 
+		footer: "Full Name: Wai Wu, SEAS Login: wuwc"
+	});
+};
+
 var postLogin = function(req, res) {
 	var userInput = req.body.userField;
 	var passwordInput = req.body.passwordField;
@@ -97,9 +104,9 @@ var getSignup = function(req, res) {
 };
 
 var postCreateAccount = function(req, res) {
-	// var userInput = req.body.userField;
-	// var passwordInput = req.body.passwordField; 
-	// var nameInput = req.body.nameField; 
+	var userInput = req.body.userField;
+	var passwordInput = req.body.passwordField; 
+	var nameInput = req.body.nameField; 
 
 	var firstname = req.body.firstNameField;
 	var lastname = req.body.lastNameField;
@@ -253,6 +260,7 @@ what happened.
  * 
  */
 var routes = { 
+		get_testMain : getTestMain,
 		get_main: getMain,
 		post_login: postLogin,
 		post_restaurants: postRestaurants,			

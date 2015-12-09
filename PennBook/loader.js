@@ -21,7 +21,7 @@ var friendsDBname = "friends";
 var usernamesDBname = "usernames";
 
 var users = [
-	[0, JSON.stringify({
+	["0", JSON.stringify({
 		"firstname" : "Brian",
 		"lastname" : "Hirsh",
 		"email" : "hirshb@sas.upenn.edu",
@@ -31,11 +31,11 @@ var users = [
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",
 		"online" : false,
-		"posts" : [0],
-		"comments" : [],
-		"friendposts" : [0]
+		"posts" : JSON.stringify({"array" : [0]}),
+		"comments" : JSON.stringify({"array" : []}),
+		"friendposts" : JSON.stringify({"array" : [0]})
 	})
-	], [1, JSON.stringify({
+	], ["1", JSON.stringify({
 		"firstname" : "Wai",
 		"lastname" : "Wu",
 		"email" : "wuwc@sas.upenn.edu",
@@ -45,25 +45,39 @@ var users = [
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",
 		"online" : false,
-		"posts" : [],
-		"comments" : [0],
-		"friendposts" : [0]
-	})
-]];
+		"posts" : JSON.stringify({"array" : []}),
+		"comments" : JSON.stringify({"array" : [0]}),
+		"friendposts" : JSON.stringify({"array" : [0]})
+	})],
+	["1", JSON.stringify({
+		"firstname" : "test",
+		"lastname" : "test",
+		"email" : "test@sas.upenn.edu",
+		"password" : "test",
+		"status" : "test's status",
+		"affiliation" : "University of Pennsylvania",
+		"interests" : ["computer science"],
+		"birthday" : "April 20th 1996",
+		"online" : false,
+		"posts" : JSON.stringify({"array" : []}),
+		"comments" : JSON.stringify({"array" : [0]}),
+		"friendposts" : JSON.stringify({"array" : [0]})
+	})]
+];
 
 
 var posts = [
-	[0, JSON.stringify({
+	["0", JSON.stringify({
 		"owner1" : 0, 
 		"owner2" :1, 
-		"text" : "love u ;)", 
-		"commentIDs" : [0]
+		"text" : "love u", 
+		"commentIDs" : JSON.stringify({"array" : [0]})
 	})
 ]];
 
 
 var comments = [
-	[0, JSON.stringify({
+	["0", JSON.stringify({
 		"postID" : 0,
 		"owner" : 1,
 		"text" : "love u too sexy"
@@ -71,13 +85,12 @@ var comments = [
 ]];
 
 var affiliations = [
-	["University of Pennsylvania", 
-		[0, 1]
-]];
+	["University of Pennsylvania", JSON.stringify({"array" : [0, 1]})]
+];
 
 var friends = [
-		[0, 1],
-		[1, 0]
+		["0", "1"],
+		["1", "0"]
 ];
 
 var usernames = [
@@ -159,6 +172,7 @@ var commentsDBname = "comments";
 var affiliationsDBname = "affiliations";
 var friendsDBname = "friends";
 var usernamesDBname = "usernames";
+
 
 setup(null, [usersDBname, users, null], i);
 setup(null, [postsDBname, posts, null], j);

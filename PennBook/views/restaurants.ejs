@@ -27,12 +27,34 @@
 </head>
 
 <body>
-  <div id="map" style="width:500px;height:500px;"></div>
+<!--   <div id="map" style="width:500px;height:500px;"></div>
+ -->  
   <div id="pos"></div>
   <div id="dataFromServer"></div> 
 
- 
+<!-- Table Element 
+ --> 
+ <h1> Table of Restaurant Reviews </h1>
 
+<% if (data != null) { %> 
+<table border="1">
+	<th>Name</th> <th>Latitude</th> <th>Longitude</th> <th>Description</th> <th>Username</th>
+<% for(var i=0; i < data.length; i++) { %>
+   <tr>
+     <td><%= data[i]['key'] %></td>
+     <td><%= data[i]['value']['latitude'] %></td>
+     <td><%= data[i]['value']['longitude'] %></td>
+     <td><%= data[i]['value']['description'] %></td>
+     <td><%= data[i]['value']['creator'] %></td>       
+   </tr>
+<% } %>
+</table>
+<% } %> 
+
+ <br> 
+ 
+<!--  Add Posts Element 
+ -->
  <br> 
  
  <h1> Add New Restaurant Review </h1>
