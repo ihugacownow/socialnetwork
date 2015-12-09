@@ -61,25 +61,48 @@ var myDB_getRest = function(route_callbck){
 }
 
 //For creating a user and adding to the table of users 
-var myDB_putUser = function(username, value, route_callbck){		
-	userDB.exists(username, function(err, data) {
-		if (!data) {
-			// No identical username entry exists, so can add user 
-			userDB.put(username, value, function (err, dataTwo) {
-				if (err) {
-					route_callbck(null, err);
-				} else if (dataTwo == null) {
-					route_callbck(null, null);
-				} else {					
-					route_callbck("User added in succesfully", null);						
-				}
-			});
+var myDB_putUser = function(value, route_callbck){		
+	userDB.putUser(value, function(err, data) {
+		if (err) {
+			route_callbck(null, err);
 		} else {
-			// exist data is true means that user exists, so pass back null data
-			// to indicate user was not added in successfully 
-			route_callbck(null, null); 
+			var keyval = JSON.stringify({
+				"userID" : data,
+				"firstname" : value.firstname,
+				"lastname" : value.lastname,
+				"email" : value.email,
+				"password" : value.password,
+				"status" : value.status,
+				"affiliation" : value.affiliations,
+				"interests" : value.interests,
+				"birthday" : value.birthday,
+				"online" : value.online,
+				"posts" : value.posts,
+				"comments" : value.comments,
+				"friendposts" : value.friendposts
+			})
+			route_callbck(data, null);
 		}
-	});		
+	})
+
+	// userDB.exists(username, function(err, data) {
+	// 	if (!data) {
+	// 		// No identical username entry exists, so can add user 
+	// 		userDB.put(username, value, function (err, dataTwo) {
+	// 			if (err) {
+	// 				route_callbck(null, err);
+	// 			} else if (dataTwo == null) {
+	// 				route_callbck(null, null);
+	// 			} else {					
+	// 				route_callbck("User added in succesfully", null);						
+	// 			}
+	// 		});
+	// 	} else {
+	// 		// exist data is true means that user exists, so pass back null data
+	// 		// to indicate user was not added in successfully 
+	// 		route_callbck(null, null); 
+	// 	}
+	// });		
 }
 
 //For adding restaurant data to the table of restaurants 

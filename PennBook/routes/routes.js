@@ -107,7 +107,7 @@ var postCreateAccount = function(req, res) {
 	var password = req.body.passwordField; 
 
 	// Check for empty fields 
-	if (userInput == "" || passwordInput == "" || nameInput == "") {
+	if (firstname == "" || lastname == "" || email == "" || password == "") {
 		res.render('signup.ejs', {message: "Fill up the Empty Fields!"});
 	} else {
 		// Create value json object to put inside table
@@ -116,14 +116,14 @@ var postCreateAccount = function(req, res) {
 		"lastname" : lastname,
 		"email" : email,
 		"password" : password,
-		"status" : status,
+		"status" : "",
 		"affiliation" : "",
 		"interests" : [],
 		"birthday" : "",
 		"online" : false,
-		"posts" : [0],
+		"posts" : [],
 		"comments" : [],
-		"friendposts" : [0]
+		"friendposts" : []
 		});
 		// Call database to add user function
 		db.putUser(value, function(data, err) {
@@ -132,10 +132,11 @@ var postCreateAccount = function(req, res) {
 			} else {
 				//the data value will return the URL for the user (firstname.lastname.inx)
 				//pass in the response from the server to our app function
-				req.session.username = 
-				res.redirect('/')
+				req.session.ID = data.userID;
+				res.redirect('/restaurants');
 			}
-		})
+		});
+
 
 		// // Create value json object to put inside table 
 		// var value = JSON.stringify({
