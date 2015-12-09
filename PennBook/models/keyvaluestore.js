@@ -305,6 +305,83 @@
   };
 
   /**
+   * SPECIFIC PUT FOR USERS (doesn't take in a keyword, keyword = inx)
+   * Add a key/value or key/valueset pair
+   * @param keyword
+   * @param value - either a value or an array of values
+   * callback with inx of put
+   */
+  keyvaluestore.prototype.putUser = function(value, callback) {
+    var self = this;
+    if (self.inx === -1){
+      callback("Error using table - call init first!", null)
+      return
+    }
+    
+    self.cache.del(self.inx.toString());
+
+    tasks = []
+    // Array?
+    if (value.constructor === Array) {
+      inxList = []
+      for (var i = 0; i < value.length; i++) {
+        var params = {
+            Item: {
+              "keyword": {
+                S: self.inx.toString()
+              },
+              "inx": {
+                N: self.inx.toString()
+              },
+              value: { 
+                S: value[i]
+              }
+            },
+            TableName: self.tableName,
+            ReturnValues: 'NONE'
+        };
+
+        tasks.push(function (callback){
+          db.putItem(params, callback);
+        })
+        
+        inxList.push(self.inx)
+        self.inx++;
+      }
+      async.parallel(tasks, function(err, data){
+        if (err)
+          callback(err)
+        else
+          callback(null, inxList)
+      })
+    } else {
+      var params = {
+          Item: {
+            "keyword": {
+              S: self.inx.toString()
+            },
+            "inx": {
+              N: self.inx.toString()
+            },
+            value: { 
+              S: value
+            }
+          },
+          TableName: self.tableName,
+          ReturnValues: 'NONE'
+      };
+
+      db.putItem(params, function(err, data){
+        if (err)
+          callback(err)
+        else
+          callback(null, self.inx)
+      });
+      self.inx++;
+    }   
+  };
+
+  /**
    * Delete value matching the keyword and inx
    * 
    * @param keyword

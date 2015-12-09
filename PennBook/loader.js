@@ -49,7 +49,7 @@ var users = [
 		"comments" : JSON.stringify({"array" : [0]}),
 		"friendposts" : JSON.stringify({"array" : [0]})
 	})],
-	["1", JSON.stringify({
+	["2", JSON.stringify({
 		"firstname" : "test",
 		"lastname" : "test",
 		"email" : "test@sas.upenn.edu",
@@ -91,6 +91,7 @@ var affiliations = [
 var friends = [
 		["0", "1"],
 		["1", "0"]
+		["0", "2"],
 ];
 
 var usernames = [
