@@ -14,6 +14,7 @@ var sess = {
       firstname: '',
       lastname: '',
       email: ''
+      friends: '[]'
 }
 
 var async = require('async');
@@ -40,8 +41,11 @@ app.get('/logout', routes.get_logout);
 app.post('/ajaxrestaurant', routes.post_ajaxRestaurant);
 app.get('/getajaxrestaurants', routes.get_ajaxRestaurants); 
 app.post('/delete', routes.post_deleteRestaurant);
-app.get('/restaurants/:firstname:lastname:ID', routes.post_profile); //TODO
+app.post('/restaurants/:firstname:lastname:ID', routes.post_profile);
 app.post('/addcomment', routes.post_addcomment);
+app.post('/search', routes.post_search);
+app.get('/notifications', routes.get_notifications);
+app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */
 
