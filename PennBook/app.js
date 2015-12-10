@@ -46,6 +46,7 @@ app.post('/restaurants/:firstname:lastname:ID', routes.post_profile);
 app.post('/addcomment', routes.post_addcomment);
 app.post('/search', routes.post_search);
 app.get('/notifications', routes.get_notifications);
+app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */
 

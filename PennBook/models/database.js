@@ -218,6 +218,16 @@ var myDB_allFriends = function(route_callbck) {
 	})
 }
 
+var myDB_updateNotifications = function(key, inx, attributes, route_callbck) {
+	userDB.update(key, inx, attributes, function(err, data) {
+		if (err) {
+			console.log("could not update user's notifications part of table!" + err);
+		} else {
+			route_callbck(data, null);
+		}
+	})
+}
+
 /* We define an object with one field for each method. For instance, below we have
    a 'lookup' field, which is set to the myDB_lookup function. In routes.js, we can
    then invoke db.lookup(...), and that call will be routed to myDB_lookup(...). */
@@ -235,7 +245,6 @@ var database = {
 		addComment: myDB_addComment,
 		getUsers: myDB_getUsers,
 		allFriends: myDB_allFriends,
-		getNotifications: myDB_getNotifications,
 		updateNotifications: myDB_updateNotifications
 };
 

@@ -428,43 +428,24 @@ var postSearch = function(req, res) {
 }
 
  var getNotifications = function(req, res) {
- }
-// 	//get the notifications
-// 	db.lookupUser(req.session.email, req.session.password, function(userData, err) {
-// 		if (err) {
-// 			console.log("error looking up user!" + err);
-// 		} else {
-// 			//set the notifications array for the current user to be empty
-// 			db.updateNotifications(req.session.ID function(err, data) {
-// 				if (err) {
-// 					console.log("error updating notifications!" + err);
-// 				} else {
-// 					//send the user the original notifications array
-// 					var json = JSON.parse(userData);
-
-// 					res.send({"notifications": userData.notifications});
-// 				}
-// 			})
-// 		}
-// 	})
-// 	db.lookupUser(userInput, passwordInput, function(data, err) {
-// 			if (err) {
-// 				// User or Password not valid, so redirect to login page with error message 
-// 				res.render('main.ejs', {
-// 					userInput: userInput, 
-// 					message: err, 
-// 					footer: "Full Name: Wai Wu, SEAS Login: wuwc"
-// 				});
-// 			} else if (data) {			
-// 				// Save username in session object and redirect to restaurant page
-// 				var json = JSON.parse(data.value);
-// 				console.log("req session values!!", json);
-// 				req.session.ID = data.inx;
-// 				req.session.firstname = json.firstname;
-// 				req.session.lastname = json.lastname;
-// 				req.session.email = json.email; 
-// 				res.redirect('/restaurants');
-// }
+	//get the notifications
+	db.lookupUser(req.session.email, req.session.password, function(userData, err) {
+		if (err) {
+			console.log("error looking up user!" + err);
+		} else {
+			//set the notifications array for the current user to be empty
+			db.updateNotifications(req.session.email, req.session.ID, {"notifications": []} function(data, err) {
+				if (err) {
+					console.log("error updating notifications!" + err);
+				} else {
+					//send the user the original notifications array
+					var json = JSON.parse(userData.value);
+					res.send({"notifications": userData.notifications});
+				}
+			})
+		}
+	})
+}
 
 
 var getLogout = function(req, res) {
