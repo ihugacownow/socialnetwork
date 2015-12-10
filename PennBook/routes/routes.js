@@ -1,6 +1,6 @@
 var db = require('../models/database.js');
 var async = require('async');
-
+var $ = require('jQuery');
 
 var getMain = function(req, res) {
 	res.render('main.ejs', { 
@@ -39,6 +39,7 @@ var postLogin = function(req, res) {
 			} else if (data) {			
 				// Save username in session object and redirect to restaurant page
 				var json = JSON.parse(data.value);
+				console.log("req session values!!", json);
 				req.session.ID = data.inx;
 				req.session.firstname = json.firstname;
 				req.session.lastname = json.lastname;
@@ -115,6 +116,10 @@ var postRestaurants = function(req, res) {
 		});
 	}
 	db.getFriends("0", function(err, friends) {
+		var friendsArr = [];
+		for (var i = 0; i < friends.length; i++) {
+			friendsArr.push(friends[i].value);
+		}
 		if (err) {
 			console.log("error:", err);
 		}
@@ -123,10 +128,14 @@ var postRestaurants = function(req, res) {
 			doPosts(postsString, posts, function(err, postsData) {
 				var filteredPosts = []
 				for (var i = 0; i < postsData.length; i++) {
-					if (contains(postsData[i].value.owner1, friends) ||
-						contains(postsData[i].value.owner2, friends)) {
+					console.log("friends", friends);
+					if (contains(postsData[i].value.owner1, friends) != -1 ||
+						contains(postsData[i].value.owner2, friends) != -1) {
 						filteredPosts.push(postsData[i]);
+						console.log("success!");
 					}
+					console.log("filtered posts: ", filteredPosts);
+
 				}
 				res.render('restaurants.ejs', {session : req.session, message : "", posts : postsData});
 			});	
@@ -180,6 +189,7 @@ var doComments = function (post, commentIDs, callback) {
 var doPosts = function (arr, posts, callback) {
 	async.forEachOf(posts, function(post, key, inner_callback){
 		var commentIDlist = JSON.parse(post.value.commentIDs);
+		console.log("commentIDlist: ", post.value.commentIDs);
 				doComments(post, commentIDlist, function(err) {
 					inner_callback();
 				});
@@ -337,9 +347,16 @@ var postDeleteRestaurant = function(req, res) {
 var postAddComment = function(req, res) {
 	var postID = req.params.postID;
 	var text = req.params.commenttext;
-	db.addComment(req.session.firstname, req.session.lastname, req.session.ID, postID, text, function(err, data) {
+	console.log("about to call db add comment!");
+	console.log("params:", req.params); 
+		console.log("params for postID and text:", req.params.postID); 
+		console.log("params for postID and text:", req.params.commenttext); 
+		console.log("req session firstname lastname", req.session.firstname, req.session.lastname);
 
-	}
+
+	db.addComment(req.session.firstname, req.session.lastname, req.session.ID, postID, text, function(err, data) {
+		console.log("finished calling db add comment!");
+	})
 }
 
 

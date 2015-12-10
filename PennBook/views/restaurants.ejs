@@ -165,54 +165,54 @@
 
   // 0) Add comments 
 
-	$( "#addcomment" ).submit(function( event ) {
-	   // stop the form from submitting and refreshing
-        event.preventDefault();
-        event.stopPropagation();
+	// $( "#addcomment" ).submit(function( event ) {
+	//    // stop the form from submitting and refreshing
+ //        event.preventDefault();
+ //        event.stopPropagation();
  		
  		
- 	// 2) process the form with ajax 
+ // 	// 2) process the form with ajax 
  	
- 		 $.post('/ajaxrestaurant', formData, function(response) 
-           {
-            // Add new marker based on data returned from the server 
-            addNewMarker(JSON.parse(response))           
-           })
-           // in case there is an error 
-           .fail(function(error) { alert(error.responseJSON) });  
-    });	
+ // 		 $.post('/ajaxrestaurant', formData, function(response) 
+ //           {
+ //            // Add new marker based on data returned from the server 
+ //            addNewMarker(JSON.parse(response))           
+ //           })
+ //           // in case there is an error 
+ //           .fail(function(error) { alert(error.responseJSON) });  
+ //    });	
 
 
 
 
   
-  	// 1) Use a submit handler for the form
+ //  	// 1) Use a submit handler for the form
   
-	$( "#addpost" ).submit(function( event ) {
-	   // stop the form from submitting and refreshing
-        event.preventDefault();
-        event.stopPropagation();
+	// $( "#addpost" ).submit(function( event ) {
+	//    // stop the form from submitting and refreshing
+ //        event.preventDefault();
+ //        event.stopPropagation();
         
- 		var formData = {
-	 			'text'	: $('input[name=commenttext]').val(), 
-	 			'owner'	: $('input[name=postID]').val(),
-	 			'firstname' : firstname, 
-	 			 'lastname' : lastname, 
-	 			 'postID'   : "0"
- 				};  		
+ // 		var formData = {
+	//  			'text'	: $('input[name=commenttext]').val(), 
+	//  			'owner'	: $('input[name=postID]').val(),
+	//  			'firstname' : firstname, 
+	//  			 'lastname' : lastname, 
+	//  			 'postID'   : "0"
+ // 				};  		
  		
- 		var commentData = JSON.stringify(formData);
+ // 		var commentData = JSON.stringify(formData);
  		
- 	// 2) process the form with ajax 
+ // 	// 2) process the form with ajax 
  	
- 		 $.post('/ajaxrestaurant', formData, function(response) 
-           {
-            // Add new marker based on data returned from the server 
-            addNewMarker(JSON.parse(response))           
-           })
-           // in case there is an error 
-           .fail(function(error) { alert(error.responseJSON) });  
-    });	
+ // 		 $.post('/ajaxrestaurant', formData, function(response) 
+ //           {
+ //            // Add new marker based on data returned from the server 
+ //            addNewMarker(JSON.parse(response))           
+ //           })
+ //           // in case there is an error 
+ //           .fail(function(error) { alert(error.responseJSON) });  
+ //    });	
 
 
 

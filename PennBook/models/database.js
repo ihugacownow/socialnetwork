@@ -175,11 +175,18 @@ var myDB_removeRestaurant = function(keyword, inx, route_callbck) {
 var myDB_addComment = function(firstname, lastname, userID, postID, text, route_callbck) {
 	//add the comment to our comments table
 	var commentValue = {"postID": postID, "owner": userID, "text": text, "firstname": firstname, "lastname": lastname};
+	console.log("about to call kvs put for the comment!");
+	console.log("comment we're adding is: ", commentValue);
 	commentDB.put2(commentValue, function(err, data) {
+		console.log("finished kvs put for comment, about to kvs remove the post!");
 		//once comment has been added, remove the current post, update it, and re-add to post table
-		postDB.remove(commentID, commentID, function(err, data) {
+		postDB.remove(postID, postID, function(err, data) {
+			console.log("finished kvs remove for post, about to kvs put the new post!");
+			console.log("old post's comment id list: ", data.commentIDs);
 			data.commentIDs.push(commentID);
+			console.log("new post's comment id list: ", data.commentIDs);
 			postDB.put2(data, function(err, data) {
+				console.log("finished putting new post in post list!");
 				if (err) {
 					console.log("error re-adding post to table: " + err);
 					route_callbck(err, null);
