@@ -41,6 +41,9 @@ var postLogin = function(req, res) {
 			} else {
 				// Should not hit this case 
 				res.render('main.ejs', {
+					firstname: test,
+					lastname: test,
+					userID: test,
 					userInput: userInput, 
 					message: 'Null Data', 
 					footer: "Full Name: Wai Wu, SEAS Login: wuwc"
@@ -49,6 +52,45 @@ var postLogin = function(req, res) {
 		});
 	}
 };
+
+var postTestRestaurants = function(req, res) {
+	//If the user is not logged in, redirect him to login
+	
+	posts = [JSON.stringify(
+					{'key' : "0", 
+				 	'inx' : "0",
+				  	'value' : {"owner1" 	: "Brian", 
+				  				 'owner2'	: "Wai", 
+				  				 'text'		: "yoooooo my post is this", 
+				  				 'commentTexts' : ["comment 1", "comment 2"],				  				 
+				  				 'commentOwners' : ["Brian", "Wai Commenter"]
+				  				}				  				
+				  			
+				  	}), 
+
+			JSON.stringify(
+					{'key' : "0", 
+				 	'inx' : "0",
+				  	'value' : {"owner1" 	: "Brian", 
+				  				 'owner2'	: "Wai", 
+				  				 'text'		: "yoooooo my post is this", 
+				  				 'commentTexts' : ["comment 1", "comment 2"],
+				  				 'commentOwners' : ["Brian", "Wai Commenter"]
+				  				}				  				
+				  			
+				  	}), 
+
+			];
+
+		
+
+			res.render('restaurants.ejs', {
+				username: "0", 
+				message: null, 
+				posts: posts
+			});		
+};
+
 
 
 var postRestaurants = function(req, res) {
@@ -261,6 +303,7 @@ what happened.
  * 
  */
 var routes = { 
+		post_testrestaurants: postTestRestaurants,
 		get_testMain : getTestMain,
 		get_main: getMain,
 		post_login: postLogin,

@@ -21,38 +21,35 @@ var friendsDBname = "friends";
 var usernamesDBname = "usernames";
 
 var users = [
-	["0", JSON.stringify({
+	["hirshb@sas.upenn.edu", JSON.stringify({
 		"firstname" : "Brian",
 		"lastname" : "Hirsh",
-		"email" : "hirshb@sas.upenn.edu",
 		"password" : "password1",
 		"status" : "Brian's status",
 		"affiliation" : "University of Pennsylvania",
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",
 		"online" : false,
-		"posts" : JSON.stringify({"array" : [0]}),
-		"comments" : JSON.stringify({"array" : []}),
-		"friendposts" : JSON.stringify({"array" : [0]})
+		"posts" : JSON.stringify([0]),
+		"comments" : JSON.stringify([]),
+		"friendposts" : JSON.stringify([0])
 	})
-	], ["1", JSON.stringify({
+	], ["wuwc@sas.upenn.edu", JSON.stringify({
 		"firstname" : "Wai",
 		"lastname" : "Wu",
-		"email" : "wuwc@sas.upenn.edu",
 		"password" : "password2",
 		"status" : "Wai's status",
 		"affiliation" : "University of Pennsylvania",
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",
 		"online" : false,
-		"posts" : JSON.stringify({"array" : []}),
+		"posts" : JSON.stringify([]),
 		"comments" : JSON.stringify({"array" : [0]}),
-		"friendposts" : JSON.stringify({"array" : [0]})
+		"friendposts" : JSON.stringify([0])
 	})],
-	["2", JSON.stringify({
+	["test", JSON.stringify({
 		"firstname" : "test",
 		"lastname" : "test",
-		"email" : "test@sas.upenn.edu",
 		"password" : "test",
 		"status" : "test's status",
 		"affiliation" : "University of Pennsylvania",
@@ -61,7 +58,7 @@ var users = [
 		"online" : false,
 		"posts" : JSON.stringify({"array" : []}),
 		"comments" : JSON.stringify({"array" : [0]}),
-		"friendposts" : JSON.stringify({"array" : [0]})
+		"friendposts" : JSON.stringify([0])
 	})]
 ];
 
@@ -69,41 +66,40 @@ var users = [
 var posts = [
 	["0", JSON.stringify({
 		"owner1" : 0, 
-		"owner2" :1, 
-		"text" : "love u", 
-		"commentIDs" : JSON.stringify({"array" : [0]})
-	})
-]];
+		"owner2" :1, 				
+		"text" : "love u",
+		"commentIDs" : JSON.stringify([0])
+	})]
+];
 
-
+// Key is post ID and secondary key will be the comments time stamp 
 var comments = [
 	["0", JSON.stringify({
 		"postID" : 0,
 		"owner" : 1,
-		"text" : "love u too sexy"
+		"text" : "love u too sexy",
+		"firstname" : "Brian",
+		"lastname" : "Hirsh",
+	})], 
+	["1", JSON.stringify({
+		"postID" : 0,
+		"owner" : 1,
+		"text" : "love u too sexy",
+		"firstname" : "Wai",
+		"lastname" : "Wu"
 	})
-]];
+]
+];
 
 var affiliations = [
-	["University of Pennsylvania", JSON.stringify({"array" : [0, 1]})]
+	["University of Pennsylvania", JSON.stringify([0, 1])]
 ];
 
 var friends = [
 		["0", "1"],
-		["1", "0"]
-		["0", "2"],
+		["1", "0"],
+		["0", "2"]
 ];
-
-var usernames = [
-	["hirshb@sas.upenn.edu", JSON.stringify({
-		"password" : "password1",
-		"userID" : 0
-	})
-	], ["wuwc@sas.upenn.edu", JSON.stringify({
-		"password" : "password2",
-		"userID" : 1
-	})
-]]
 
 //  This function uploads our data in a generic way 
 var uploadThings = function(things, table, callback) {
@@ -168,11 +164,10 @@ function setup(err, data, counter) {
 	}
 }
 var usersDBname = "users";
-var postsDBname = "restaurants";
+var postsDBname = "posts";
 var commentsDBname = "comments";
 var affiliationsDBname = "affiliations";
 var friendsDBname = "friends";
-var usernamesDBname = "usernames";
 
 
 setup(null, [usersDBname, users, null], i);
@@ -180,7 +175,6 @@ setup(null, [postsDBname, posts, null], j);
 setup(null, [commentsDBname, comments, null], k);
 setup(null, [affiliationsDBname, affiliations, null], l);
 setup(null, [friendsDBname, friends, null], m);
-setup(null, [usernamesDBname, usernames, null], n);
 
 
 

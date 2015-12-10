@@ -33,23 +33,57 @@
   <div id="dataFromServer"></div> 
 
 <!-- Table Element 
+	Da
  --> 
- <h1> Table of Restaurant Reviews </h1>
 
-<% if (data != null) { %> 
+ <h1> Posts </h1>
+
 <table border="1">
-	<th>Name</th> <th>Latitude</th> <th>Longitude</th> <th>Description</th> <th>Username</th>
-<% for(var i=0; i < data.length; i++) { %>
-   <tr>
-     <td><%= data[i]['key'] %></td>
-     <td><%= data[i]['value']['latitude'] %></td>
-     <td><%= data[i]['value']['longitude'] %></td>
-     <td><%= data[i]['value']['description'] %></td>
-     <td><%= data[i]['value']['creator'] %></td>       
-   </tr>
-<% } %>
-</table>
+<% if (posts != null) { %> 
+	<% for(var i=0; i < posts.length; i++) { %>
+		<tr>
+			<table border="1">
+			Table starts here 
+				<th>Person</th> <th>Post</th> 
+				
+				<!-- 		Create the post first -->	
+		  		<% var post = JSON.parse(posts[i]);  %>
+		  		<% var postVal = post['value'];  %>
+		  		<br>	
+			    <tr>
+				     <td> <%=postVal['owner1'] %> </td>
+				     <td> <%=postVal['text'] %> </td>
+				</tr>
+				
+				<!-- 	   Then create the comments 		-->
+		 		<br>
+		 		Comments 
+		 		<% var comments = postVal['commentTexts'];  %>
+		 		<% var commentsOwner = postVal['commentOwners'];  %>
+
+		 		<% for(var j=0; j < comments.length; j++) { %>	
+		 			<tr>
+			     		<td> <%=commentsOwner[j]%> </td>
+			     		<td> <%=comments[j]%> </td>
+			   		</tr>
+		 		<% }  %>
+		 		Table ends here 
+		 	</table>			 		
+		 		<!-- 	   Then create the add new post part		-->
+	 		<br>
+			<form id="addcomment" method="post">
+		    <input type="text" id="commenttext" name="text" placeholder="Add comment" required> <br><br> 
+		    <input id="submitButton" type="submit" value="Add" />
+		  	</form>  			
+		</tr>	
+	<% } %>
 <% } %> 
+</table>
+
+ 
+
+
+
 
  <br> 
  
@@ -57,9 +91,9 @@
  -->
  <br> 
  
- <h1> Add New Restaurant Review </h1>
+ <h3> Add New Post  </h3>
  
-  <form id="form" method="post">
+  <form id="addpost" method="post">
     <input type="text" id="formLatitude" name="latField" placeholder="Enter Latitude" required> 
     <br>
     <input type="text" id="formLongitude" name="longField" placeholder="Enter longitude" required> 
@@ -72,231 +106,32 @@
    <br><br> 
     <input id="submitButton" type="submit" value="Add" />
   </form>  
+
+
+
   
   <script type="text/javascript">
-  
-  	var map;
-	var markers = [];  // Stores all the markers 
-	var id = 0; // id of marker that is constantly incremented 
-	var defaultUser;
+ 	// Store the default user on login
+	var firstname = "";
+	var lastname = "";
+	var userID = "";
+
+
 	// 1) Load Map Logic 	
-	var loadMap = function() {	
-		defaultUser = '<%= username %>';	
-    	var myOptions = {
-           	center: new google.maps.LatLng(39.952335, -75.163789),
-           	zoom: 11,
-           	mapTypeId: google.maps.MapTypeId.ROADMAP
-    	};
-    	
-	  	map = new google.maps.Map(document.getElementById("map"), myOptions);
-	  	
-	  	google.maps.event.addListener(map, 'click',
-			function( event ){
-			   	document.getElementById('formLatitude').value
-			 	= event.latLng.lat(); 
-			 	
-			 	document.getElementById('formLongitude').value
-			 	= event.latLng.lng(); 
-		    }		    
-		);		
-			addMap();						
+	var loadUser= function() {	
+		// TODO: Add users, first, last
+	};	
+	
+
+	//4) Initialize functions onload 
+	window.onload = function() {
+		loadUser();
+		// refreshMap();
+  //     	setInterval(refreshMap, 5 * 1000);    
+	
 	};
 	
-	var loadMapAjax = function(data) {		
-    	var myOptions = {
-           	center: new google.maps.LatLng(39.952335, -75.163789),
-           	zoom: 11,
-           	mapTypeId: google.maps.MapTypeId.ROADMAP
-    	};
-    	
-	  	map = new google.maps.Map(document.getElementById("map"), myOptions);
-	  	
-	  	google.maps.event.addListener(map, 'click',
-			function( event ){
-			   	document.getElementById('formLatitude').value
-			 	= event.latLng.lat(); 
-			 	
-			 	document.getElementById('formLongitude').value
-			 	= event.latLng.lng(); 
-		    }		    
-		);		
-			addMapAjax(data);						
-	};
-	
-	
-	// 2) Add Markers to map logic 		
-	var addMap = function() {
-		<% for(var i=0; i < data.length ; i++) { %>
-			var myPos = new google.maps.LatLng(parseFloat(<%= data[i]['value']['latitude'] %>), 
-												parseFloat(<%= data[i]['value']['longitude'] %>));
-			
-	
-			var iconType = ""; 
-			<% if (data[i]['value']['creator'] == username) { %> 
-					iconType = 'http://google.com/mapfiles/ms/micons/yellow-dot.png'; 
-			<%  } else { %>
-				iconType = 'http://google.com/mapfiles/ms/micons/red-dot.png'; 
-			<%  } %>
-			
-			var marker = new google.maps.Marker({
-			  position: myPos, 
-			  draggable: false, 
-			  icon: iconType
-			});
-			
-			marker.index = <%= data[i]['inx'] %>;
-			marker.title = "<%= data[i]['key'] %>";
-			
-					
-			var boldedNameTwo = '<%= data[i]['key'] %>'; 
-			var boldedName = '<div><div style="font-weight:bold;">' + '<%= data[i]['key'] %>' + '</div>';
-						  
-			marker['infowindow'] = new google.maps.InfoWindow({
-			  content:   boldedName + 
-			  			"<br>Description: " + '<%= data[i]['value']['description'] %>' + 
-			  			"<br>Added by: " + '<%= data[i]['value']['creator'] %>' 
-			});
-			google.maps.event.addListener(marker, 'click', function() {
-			  this['infowindow'].open(map, this);
-			});
-			
-    		markers[marker.index] = marker; 
-    
-			google.maps.event.addListener(marker, "rightclick", 
-    				function (point) { 
-    					// console.log("deleting marker ------------------------------"); 
-    					id = this.index; 
-			    		delMarker(id); 
-			    	}
-			   	);	    	   				
-			marker.setMap(map);				
-	<% }  %>
-	};
-	
-		
-	var addMapAjax = function(data) {
-		 for(var i=0; i < data.length ; i++) { 
-			var myPos = new google.maps.LatLng(parseFloat(data[i]['value']['latitude']), 
-												parseFloat(data[i]['value']['longitude']));
-			
-			var iconType = ""; 
-			if (data[i]['value']['creator'] == defaultUser) { 
-					iconType = 'http://google.com/mapfiles/ms/micons/yellow-dot.png'; 
-			 } else {
-				iconType = 'http://google.com/mapfiles/ms/micons/red-dot.png'; 
-			 }
-			
-			var marker = new google.maps.Marker({
-			  position: myPos, 
-			  draggable: false, 
-			  icon: iconType
-			});
-			
-			marker.index = data[i]['inx'];
-			marker.title = data[i]['key'];
-			marker.creator = data[i]['value']['creator'];			
-					
-		    var boldedName = '<div><div style="font-weight:bold;">' + data[i]['key'] + '</div>';
-					
-						  
-			marker['infowindow'] = new google.maps.InfoWindow({
-			  content:   boldedName + 
-			  			"<br>Description: " + data[i]['value']['description'] + 
-			  			"<br><i> Added by: " + data[i]['value']['creator'] + "</i>" 
-			});
-			
-			google.maps.event.addListener(marker, 'click', function() {
-			  this['infowindow'].open(map, this);
-			});
-			
-			// Set ids to each of the marker 
-    		markers[marker.index] = marker; 
-    
-			google.maps.event.addListener(marker, "rightclick", 
-    				function (point) { 
-    					// console.log("deleting marker ------------------------------"); 
-    					id = this.index; 
-			    		delMarker(id); 
-			    	}
-			   	);	    	   	
-			
-			marker.setMap(map);					
-	  }  
-	};
-	
-	
-	    
-	    
-	
-	// 3) Adding / Removing marker / map  from google maps 
-	// For adding markers individually 
-	var addNewMarker = function(data) {			
-			var myPos = new google.maps.LatLng(parseFloat(data['latitude']), 
-												parseFloat(data['longitude']));
-			
-			var iconType = 'http://google.com/mapfiles/ms/micons/yellow-dot.png'; 
-			var marker = new google.maps.Marker({
-			  position: myPos, 
-			  draggable: false, 
-			  icon: iconType
-			});
-			
-			marker.index = data['inx'];
-			marker.title = data['title'];
-			marker.user = '<%= username %>';
-				
-			var boldedName = '<div><div style="font-weight:bold;">' +  data['title'] + '</div>';
-						  
-			marker['infowindow'] = new google.maps.InfoWindow({
-			  content:   boldedName + 
-			  			"<br>Description: " + data['description'] + 
-			  			"<br>Added by: " + data['creator'] 
-			});
-			
-			google.maps.event.addListener(marker, 'click', function() {
-			  this['infowindow'].open(map, this);
-			});
-			
-			google.maps.event.addListener(marker, "rightclick", 
-    				function (point) { 
-    					id = this.index; 
-			    		delMarker(id); 
-			    	}
-			 );	    	   	
-			marker.setMap(map);			
-			
-	    };
-	    
-	var delMarker = function (id) {
-		console.log("id is", id);
-    	marker = markers[id]; 
-    	keyword = marker.title;
-    	console.log("Trying to delete marker");
-    	console.log("creator marker is: ", marker.creator);
-    	    	console.log("default user: ", defaultUser);
-    	
-    	if (marker.creator != defaultUser) {
-    		alert("Error: You are not the creator!");
-    		return;
-    	}
-    	
-    	var markerData = {
- 			'key'	: keyword,
- 			'inx'	: id 
- 		}; 
-    	
-    	// Have to update the database and load again 
-         //Post with ajax  	
- 		 $.post('/delete', markerData, function(response) 
-           {
-            // Add new marker based on data returned from the server             
-    			marker.setMap(null);
-           })
-           // in case there is an error 
-           .fail(function(error) { alert(error.responseJSON) });  
-    	
-	};
-	
+
 	var refreshMap = function() {
 	 	map = null;   	
     	 $.get('/getajaxrestaurants', function(response) 
@@ -309,15 +144,7 @@
     } 
     
    
- 
-	// 4) Initialize functions onload 
-	window.onload = function() {
-		loadMap();
-		refreshMap();
-      	setInterval(refreshMap, 5 * 1000);    
-	
-	};
-	
+
 	
 	//----------------------------------------------------------------
   
@@ -326,20 +153,20 @@
   
   	// 1) Use a submit handler for the form
   
-	$( "#form" ).submit(function( event ) {
+	$( "#addcomment" ).submit(function( event ) {
 	   // stop the form from submitting and refreshing
         event.preventDefault();
         event.stopPropagation();
         
  		var formData = {
- 			'latField'	: $('input[name=latField]').val(), 
- 			'longField'	: $('input[name=longField]').val(), 
- 			'nameField'	: $('input[name=nameField]').val(), 
- 			'descField'	: $('input[name=descField]').val()
- 		}; 
+	 			'text'	: $('input[name=latField]').val(), 
+	 			'owner'	: $('input[name=longField]').val(),
+	 			'firstname' : firstname, 
+	 			 'lastname' : lastname, 
+	 			 'postID'   : 
+ 				};  		
  		
- 		
- 		var stringData = JSON.stringify(formData);
+ 		var commentData = JSON.stringify(formData);
  		
  	// 2) process the form with ajax 
  	
@@ -351,6 +178,9 @@
            // in case there is an error 
            .fail(function(error) { alert(error.responseJSON) });  
     	});	
+
+
+
   
   </script>
   
@@ -359,3 +189,30 @@
   
 </body>
 </html>
+
+
+console.log("About to query!");
+      setTimeout(db.query(params, function(err, data) {
+        console.log("finished querying!");
+        if (err || data.Items.length == 0) {
+          console.log("ERROR??: " + err);
+          callback(err, null);
+        } else {
+            var items = [];
+            console.log("number of items: " + data.Items.length);
+
+            for (var i = 0; i < data.Items.length; i++) {
+              items.push({"inx": data.Items[i].inx.N, "value": data.Items[i].value.S});
+            }
+
+            self.cache.set(search, items);
+            console.log("about to call the db callback!");
+            callback(err, items);
+        }
+      }), 2000);
+
+
+
+
+
+

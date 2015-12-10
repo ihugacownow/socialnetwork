@@ -26,7 +26,9 @@ app.get('/', routes.get_main);
 app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);
-app.get('/restaurants', routes.post_restaurants);
+// app.get('/restaurants', routes.post_restaurants);
+app.get('/restaurants', routes.post_testrestaurants);
+
 app.post('/addrestaurant', routes.post_addRestaurant);
 app.get('/logout', routes.get_logout);
 app.post('/ajaxrestaurant', routes.post_ajaxRestaurant);
