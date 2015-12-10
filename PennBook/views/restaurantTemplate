@@ -1,49 +1,335 @@
- <script>
-  // Use a submit handler for the form
-	$( "#searchForm" ).submit(function( event ) {
- 		// Prevents form from submitting prematurely
- 		event.preventDefault();
- 		// rRetrieve textfield values 
- 		var $form = $( this ),
-   		term = $form.find( "input[name='s']" ).val(),
-   		url = $form.attr( "action" );
- 		// Send the data using post
- 		var posting = $.post( url, { s: term } );
- 		// Put the results in a div
-		 posting.done(function( data ) {
-			   var content = $( data ).find( "#content" );
-			   $( "#result" ).empty().append( content );
-			 });
-		});  
-  
-  
-  
+
+
+<!DOCTYPE html>
+<html>
+  <head><title>Map</title>
+  <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    body {
+      padding-top: 40px;
+	  padding-bottom: 40px;
+ 	  background-color: white;
+         }
+    .login-box {
+    max-width: 330px;
+    margin: 0 auto;
+   		}
+    .login-box .form-control {
+      margin-bottom: 10px;
+    }
+  </style>
+ 
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+  </script><script type="text/javascript">
+
+	
   </script>
-  
-  
-  
-  
-  window.onload = function() {
-		loadMap(): 
-		deleteMap();
-		// process the get 
- 		
-		
-	
-		
+</head>
+
+<body>
+<!--   <div id="map" style="width:500px;height:500px;"></div>
+ -->  
+  <div id="pos"></div>
+  <div id="dataFromServer"></div> 
+
+<!-- Table Element 
+	Da
+ --> 
+
+<!--  ID, firstname, lastname, email  --> 
+ <h1> User Information </h1>
+<!--  Search Bar   --> 
+
+<h1> Search bar is here </h1>
+<form id="newsearch" method="get" action="/restaurants">
+	<input type="text" class="tftextinput" name="q" size="21" maxlength="120"><input type="submit" value="search" class="tfbutton">
+</form>
+
+<!-- Posts --> 
+<h1> Posts </h1>
+
+<table id = "posts-table" border="1">
+<% if (posts != null) { %> 
+	<% for(var i=0; i < posts.length; i++) { %>
+		<tr>	
+			<table border="1">
+			Table starts here 
+				<th>Person</th> <th>Post</th> 
+				
+				<!-- 		Create the post first -->	
+		  		<% var post = posts[i];  %>
+		  		<% var postVal = post['value'];  %>
+		  		<br>	
+			    <tr>
+				     <td> <%=postVal['owner1'] %> </td>
+				     <td> <%=postVal['text'] %> </td>
+				</tr>
+				
+				<!-- 	   Then create the comments 		-->
+		 		<br>
+		 		Comments 
+		 		<% var comments = postVal['commentTexts'];  %>
+		 		<% var commentsOwner = postVal['commentOwners'];  %>
+
+		 		<% for(var j=0; j < comments.length; j++) { %>	
+		 			<tr>
+			     		<td> <%=commentsOwner[j]%> </td>
+			     		<td> <%=comments[j]%> </td>
+			   		</tr>
+		 		<% }  %>
+		 		Table ends here 
+		 	</table>			 		
+		 		<!-- 	   Then create the add new post part		-->
+	 		<br>
+			<form id="addcomment" method="post" action="addcomment">
+		    <input type="text" id="commenttext" name="commenttext" placeholder="Add comment" required>
+		    <input type="hidden" id="postID" name="postID" value=<%=post['key']%>>
+		    <br><br> 
+		    <input id="submitButton" type="submit" value="Add" />
+		  	</form>  			
+		</tr>	
+	<% } %>
+<% } %> 
+</table>
+
+
+
+<script>
+
+var postTable; 
+
+windows.onload = function() {
+	postTable = $('#post-table');
+ 	refreshPage(); 
+}
+
+var refreshPage = function() {
+	$.get('/getPosts', function(response) {
+		postTable.html(''); // search specifics later 
+		loadPosts(JSOON.parse(response)); 
 	}
+}
+
+function loadPosts(posts) {
+
+	for(var i = 0; i < posts.length ; i++) {
+		 $('#posts-table').append(createPostElement(posts[i]));
+	}
+}
+
+
+function createCommentElement(postKey, commentID, commentText, commentOwner) {
 	
-	var deleteMap = function() {
+	var commentDiv = $('<div/>', {
+		id: "" + postKey + "*" + commentID,
+		text: commentOwner + " says " + commentText
+	});
+
+	return commentDiv;
+}
+
+function createPostElement(post) {
+	/*
+	jQuery('<div/>', {
+	    id: 'foo',
+	    href: 'http://google.com',
+	    title: 'Become a Googler',
+	    rel: 'external',
+	    text: 'Go to Google!'
+	}).appendTo('#mySelector');
+
+	*/
+
+	var postDiv = $('<div/>', {
+		id: post['key']
+	});
+
+	// Append post elements first 
+	postDiv.append()
+
+	// Appending comments 
+	for (var i = 0; i < post['value']['commentTexts']; i++) {
+		postDiv.append(createCommentElement
+			(post['key'],
+			post['value']['commentsID'], 
+			post['value']['commentTexts'],
+			post['value']['commentsOwner']));
+	}
+
+	postDiv.appendElement(
+		input div...
+		input button...
+		.click(function(){postComment(post.id);});
+	);
+
+	 $('#posts-table').append()
+	/*
+	<div id="someuniquestring">
+		<div>Content</div>
+		<div>Comment1</div>
+		<div>Comment2</div>
+		...
+		<div><input> Reply here</input></div>
+	</div>
+	*/
+
+	return postDiv;
+}
+
+function postComment(post_id) {
+	// update backend
+	ajax send backend request(function(comment) {
+
+		//update table
+		$(post_id).appendElementInRightPosition(createCommentElement(comment));
+	});
+}
+
+
+$(function() {
+	do_some_ajax_request(function(posts){
+		for (everything in posts) {
+			$('#post_table').appendElement(createPostElement(post));
+		}
+	})
+});
+</script>
+
+<div id="post_table">
+</div>
+
+
+ <br> 
+ 
+<!--  Add Posts Element 
+ -->
+ <br> 
+ 
+ <h3> Add New Status  </h3>
+ 
+  <form id="addpost" method="post">
+    <input type="text" id="formLatitude" name="latField" placeholder="Enter Latitude" required> 
+    <br>
+    <input type="text" id="formLongitude" name="longField" placeholder="Enter longitude" required> 
+    <p> </p>
+   <br><br> 
+    <input id="submitButton" type="submit" value="Add" />
+  </form>  
+
+
+
+  
+ 
+  <br>
+  <a href= "/logout"> Click to Log Out </a>  
+  
+</body>
+</html>
+
+
+ <script type="text/javascript">
+ 	// Store the default user on login
+	var firstname = "";
+	var lastname = "";
+	var userID = "";
+
+
+	// 1) Load Map Logic 	
+	var loadUser= function() {	
+		// TODO: Add users, first, last
+
+	};	
+	
+
+	//4) Initialize functions onload 
+	window.onload = function() {
+		loadUser();
+		// refreshMap();
+  //     	setInterval(refreshMap, 5 * 1000);    
+	
+	};
+	
+
+	var refreshMap = function() {
 	 	map = null;   	
-    	console.log("Refreshing the table"); 
     	 $.get('/getajaxrestaurants', function(response) 
            {
              loadMapAjax(JSON.parse(response))  
-             	setInterval(deleteMap, 5 * 1000);          
              
            })
            // in case there is an error 
-           .fail(function(error) { alert(error.responseJSON) }); 
-            
-            
+           .fail(function(error) { alert(error.responseJSON) });            
     } 
+    
+   
+
+	
+	//----------------------------------------------------------------
+  
+  
+  // Event Handling part of code -- 
+
+  // 0) Add comments 
+
+	// $( "#addcomment" ).submit(function( event ) {
+	//    // stop the form from submitting and refreshing
+ //        event.preventDefault();
+ //        event.stopPropagation();
+ 		
+ 		
+ // 	// 2) process the form with ajax 
+ 	
+ // 		 $.post('/ajaxrestaurant', formData, function(response) 
+ //           {
+ //            // Add new marker based on data returned from the server 
+ //            addNewMarker(JSON.parse(response))           
+ //           })
+ //           // in case there is an error 
+ //           .fail(function(error) { alert(error.responseJSON) });  
+ //    });	
+
+
+
+
+  
+ //  	// 1) Use a submit handler for the form
+  
+	// $( "#addpost" ).submit(function( event ) {
+	//    // stop the form from submitting and refreshing
+ //        event.preventDefault();
+ //        event.stopPropagation();
+        
+ // 		var formData = {
+	//  			'text'	: $('input[name=commenttext]').val(), 
+	//  			'owner'	: $('input[name=postID]').val(),
+	//  			'firstname' : firstname, 
+	//  			 'lastname' : lastname, 
+	//  			 'postID'   : "0"
+ // 				};  		
+ 		
+ // 		var commentData = JSON.stringify(formData);
+ 		
+ // 	// 2) process the form with ajax 
+ 	
+ // 		 $.post('/ajaxrestaurant', formData, function(response) 
+ //           {
+ //            // Add new marker based on data returned from the server 
+ //            addNewMarker(JSON.parse(response))           
+ //           })
+ //           // in case there is an error 
+ //           .fail(function(error) { alert(error.responseJSON) });  
+ //    });	
+
+
+
+  
+  </script>
+  
+
+
+
+
+
+

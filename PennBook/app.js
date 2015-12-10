@@ -13,7 +13,7 @@ var sess = {
       ID: '',
       firstname: '',
       lastname: '',
-      email: ''
+      email: '',
       friends: '[]'
 }
 
@@ -28,13 +28,44 @@ app.use(express.logger("default"));
    between app.get and app.post; normal web requests are GETs, but
    POST is often used when submitting web forms ('method="post"'). */
 
-// app.get('/', routes.get_main);
-app.get('/', routes.get_testMain);
+app.get('/', routes.get_main);
+app.get('/getPosts', function(req, res) {
+   posts = JSON.stringify([
+               {'key' : "0", 
+               'inx' : "0",
+               'value' : {"owner1"  : "Brian", 
+                         'owner2'   : "Wai", 
+                         'text'     : "yoooooo my post is this", 
+                         'commentTexts' : ["comment 1", "comment 2"],                         
+                         'commentOwners' : ["Brian", "Wai Commenter"],
+                         'commentIDs'    : ["1","2"]
+                        }                       
+                     
+               }, 
+
+         
+               {'key' : "0", 
+               'inx' : "0",
+               'value' : {"owner1"  : "Brian", 
+                         'owner2'   : "Wai", 
+                         'text'     : "yoooooo my post is this", 
+                         'commentTexts' : ["comment 1", "comment 2"],
+                         'commentOwners' : ["Brian", "Wai Commenter"],
+                         'commentIDs'    : ["1","2"]
+                        }                       
+                     
+               }, 
+
+         ]);
+   console.log("sending here"); 
+   res.send(posts);
+});
+// app.get('/', routes.test);
 app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);
+app.get('/restaurants', routes.post_testRestaurants);
 // app.get('/restaurants', routes.post_restaurants);
-app.get('/restaurants', routes.post_restaurants);
 
 app.post('/addrestaurant', routes.post_addRestaurant);
 app.get('/logout', routes.get_logout);
@@ -45,7 +76,7 @@ app.post('/restaurants/:firstname:lastname:ID', routes.post_profile);
 app.post('/addcomment', routes.post_addcomment);
 app.post('/search', routes.post_search);
 app.get('/notifications', routes.get_notifications);
-app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
+// app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */
 

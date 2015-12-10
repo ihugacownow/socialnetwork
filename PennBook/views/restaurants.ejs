@@ -50,176 +50,229 @@
 <!-- Posts --> 
 <h1> Posts </h1>
 
-<table border="1">
-<% if (posts != null) { %> 
-	<% for(var i=0; i < posts.length; i++) { %>
-		<tr>	
-			<table border="1">
-			Table starts here 
-				<th>Person</th> <th>Post</th> 
-				
-				<!-- 		Create the post first -->	
-		  		<% var post = posts[i];  %>
-		  		<% var postVal = post['value'];  %>
-		  		<br>	
-			    <tr>
-				     <td> <%=postVal['owner1'] %> </td>
-				     <td> <%=postVal['text'] %> </td>
-				</tr>
-				
-				<!-- 	   Then create the comments 		-->
-		 		<br>
-		 		Comments 
-		 		<% var comments = postVal['commentTexts'];  %>
-		 		<% var commentsOwner = postVal['commentOwners'];  %>
 
-		 		<% for(var j=0; j < comments.length; j++) { %>	
-		 			<tr>
-			     		<td> <%=commentsOwner[j]%> </td>
-			     		<td> <%=comments[j]%> </td>
-			   		</tr>
-		 		<% }  %>
-		 		Table ends here 
-		 	</table>			 		
-		 		<!-- 	   Then create the add new post part		-->
-	 		<br>
-			<form id="addcomment" method="post" action="addcomment">
-		    <input type="text" id="commenttext" name="commenttext" placeholder="Add comment" required>
-		    <input type="hidden" id="postID" name="postID" value=<%=post['key']%>>
-		    <br><br> 
-		    <input id="submitButton" type="submit" value="Add" />
-		  	</form>  			
-		</tr>	
-	<% } %>
-<% } %> 
+<table id = "post-table" border="1">
+
 </table>
 
 
- <br> 
- 
-<!--  Add Posts Element 
- -->
- <br> 
- 
- <h3> Add New Status  </h3>
- 
-  <form id="addpost" method="post">
-    <input type="text" id="formLatitude" name="latField" placeholder="Enter Latitude" required> 
-    <br>
-    <input type="text" id="formLongitude" name="longField" placeholder="Enter longitude" required> 
-    <p> </p>
-   <br><br> 
-    <input id="submitButton" type="submit" value="Add" />
-  </form>  
+
+<script>
+
+var postTable; 
+var firstname;
+var lastname; 
+
+window.onload = function() {
+	postTable = $('#post-table');
+
+ 	refreshPage(); 
+}
+
+var refreshPage = function() {
 
 
+	$.get('/getPosts', function(response) {
+		// Reset the table first 
+		console.log("Response from server: ", response);
+		postTable.html(''); // search specifics later 
+		loadPosts(JSON.parse(response)); 
+	});
+	console.log("post table is: ", postTable);
+}
 
+
+// -------------------
+function loadPosts(jsonResponse) {
+	var posts = jsonResponse;
+	for (var i = 0; i < posts.length; i++) {
+  		$('#post-table').append(createPostElement(posts[i]));
+  	}
+}
+
+function createPostElement(post) {
+	var elem = $('<div/>', {
+  		id: "post-" + post.key,
+    	class: 'post-div'
+  	});
+
+	elem
+  		.append(createPostContent(post))
+    	.append(createCommentButton(post.key));
+  console.log("returning post element: ", elem);
+
+  return elem;
+}
+
+// // Debug 
+//   	console.log("A", 	post['key']);
+// 		console.log("comment ID ",	post['value']['commentIDs'][i]);
+//     console.log("comment Texts ",post['value']['commentTexts'][i]);
+// 	    console.log("comment Owners ",post['value']['commentOwners'][i]);
+
+function createPostContent(post) {
+	var elem = $('<div/>');
   
- 
-  <br>
-  <a href= "/logout"> Click to Log Out </a>  
+  // Appending Text of posts 
+    elem.append(
+  		$('<div/>', {style: 'width: 50%; display: inline-box'}).text(post.value.text)
+  	); 
   
-</body>
-</html>
-
-
- <script type="text/javascript">
- 	// Store the default user on login
-	var firstname = "";
-	var lastname = "";
-	var userID = "";
-
-
-	// 1) Load Map Logic 	
-	var loadUser= function() {	
-		// TODO: Add users, first, last
-
-	};	
-	
-
-	//4) Initialize functions onload 
-	window.onload = function() {
-		loadUser();
-		// refreshMap();
-  //     	setInterval(refreshMap, 5 * 1000);    
-	
-	};
-	
-
-	var refreshMap = function() {
-	 	map = null;   	
-    	 $.get('/getajaxrestaurants', function(response) 
-           {
-             loadMapAjax(JSON.parse(response))  
-             
-           })
-           // in case there is an error 
-           .fail(function(error) { alert(error.responseJSON) });            
-    } 
-    
-   
-
-	
-	//----------------------------------------------------------------
+  console.log("post is: ", post.value);
   
+  // Appending comments 
+	for (var i = 0; i < post['value']['commentTexts'].length; i++) {    
+		elem.append(createCommentElement
+			(post['key'],
+			post['value']['commentIDs'][i], 
+			post['value']['commentTexts'][i],
+			post['value']['commentOwners'][i]));
+	} 
   
-  // Event Handling part of code -- 
+    console.log("returning post content with comments");
 
-  // 0) Add comments 
-
-	// $( "#addcomment" ).submit(function( event ) {
-	//    // stop the form from submitting and refreshing
- //        event.preventDefault();
- //        event.stopPropagation();
- 		
- 		
- // 	// 2) process the form with ajax 
- 	
- // 		 $.post('/ajaxrestaurant', formData, function(response) 
- //           {
- //            // Add new marker based on data returned from the server 
- //            addNewMarker(JSON.parse(response))           
- //           })
- //           // in case there is an error 
- //           .fail(function(error) { alert(error.responseJSON) });  
- //    });	
+  return elem;
+}
 
 
+function createCommentButton(id) {
+  // Assign post id as id of the comment box 
+  var elem = $('<div/>', {
+		id: id, 
+  });
 
+  elem
+  	// label
+  	.append($('<label/>').text("Add new comment:"))
+    // text field
+    .append($('<input/>', {
+    	type: "text",
+      	id: "comment-box-" + id,
+    }))
+    // button
+    .append($('<input/>', {
+      value: "Post",
+      type: "button",
+      // Sends a post first 
+      click: function() {     
+      		// Format json object  	
+      		var formData = {
+	 			'text'	: $('#comment-box-' + id).val(), 
+	 			'postID'	: id,
+	 			'firstname' : firstname, 
+	 			'lastname' : lastname,  
+	 			// note no comment id here, it is generated backend 
+ 			};
+ 			// var postingData = JSON.stringify(formData);  
 
-  
- //  	// 1) Use a submit handler for the form
-  
-	// $( "#addpost" ).submit(function( event ) {
-	//    // stop the form from submitting and refreshing
- //        event.preventDefault();
- //        event.stopPropagation();
+ 			$.post('/addcomment', formData, function(response) {
+ 					// TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+ 					var jsonRes = JSON.parse(response);
+ 					console.log("Json response is: ", jsonRes);
+ 					var commentToAdd = createCommentElement(jsonRes.values.postID, jsonRes.key,jsonRes.values.text, jsonRes.values.owner);
+ 					commentToAdd.insertBefore('#' + id);
+ 				} 
+ 			);
+      	}      	
+      	/*var newComment = $('<div style="border: 1px solid black;" />').text(
+        	
+        )*/
         
- // 		var formData = {
-	//  			'text'	: $('input[name=commenttext]').val(), 
-	//  			'owner'	: $('input[name=postID]').val(),
-	//  			'firstname' : firstname, 
-	//  			 'lastname' : lastname, 
-	//  			 'postID'   : "0"
- // 				};  		
- 		
- // 		var commentData = JSON.stringify(formData);
- 		
- // 	// 2) process the form with ajax 
- 	
- // 		 $.post('/ajaxrestaurant', formData, function(response) 
- //           {
- //            // Add new marker based on data returned from the server 
- //            addNewMarker(JSON.parse(response))           
- //           })
- //           // in case there is an error 
- //           .fail(function(error) { alert(error.responseJSON) });  
- //    });	
+     }))
+     console.log("returning comment elements");
+
+
+  return elem;
+}
+
+
+function createCommentElement(postKey, commentID, commentText, commentOwner) {
+
+	var commentDiv = $('<div/>', {
+		id: "" + postKey + "*" + commentID,
+		text: commentOwner + " says " + commentText
+	});
+
+	return commentDiv;
+}
+
+
+
+
+
+
+
+// nON EFDFDFJKSLJFKLJFLJFLKJLKFJL
+
+// $(function(){
+// 	var postsTest = [{id: 1, name: "wu", content: "testing"}, {id: 2, name: "leow", content: "testing again"}];
+//   var posts = [JSON.stringify(
+// 					{'key' : "0", 
+// 				 	'inx' : "0",
+// 				  	'value' : {"owner1" 	: "Brian", 
+// 				  				 'owner2'	: "Wai", 
+// 				  				 'text'		: "Post 1", 
+//                    'commentIDs' : ["1", "2"],
+// 				  				 'commentTexts' : ["comment 1", "comment 2"],	
+// 				  				 'commentOwners' : ["Brian", "Wai Commenter"]
+// 				  				}				  				
+				  			
+// 				  	}), 
+
+// 			JSON.stringify(
+// 					{'key' : "1", 
+// 				 	'inx' : "0",
+// 				  	'value' : {"owner1" 	: "Brian", 
+// 				  				 'owner2'	: "Wai", 
+// 				  				 'text'		: "yoooooo my post is this", 
+//                    'commentIDs' : ["1", "2"],
+// 				  				 'commentTexts' : ["comment 1", "comment 2"],
+// 				  				 'commentOwners' : ["Brian", "Wai Commenter"]
+// 				  				}				  				
+				  			
+// 				  	}), 
+
+// 			];
+
+//   for (var i = 0; i < posts.length; i++) {
+//   	$('#post-table').append(createPostElement(JSON.parse(posts[i])));
+//   }
+// });
+
+// -------------------
+
+ 
+// <!--  Add Posts Element 
+//  -->
+//  <br> 
+ 
+//  <h3> Add New Status  </h3>
+ 
+//   <form id="addpost" method="post">
+//     <input type="text" id="formLatitude" name="latField" placeholder="Enter Latitude" required> 
+//     <br>
+//     <input type="text" id="formLongitude" name="longField" placeholder="Enter longitude" required> 
+//     <p> </p>
+//    <br><br> 
+//     <input id="submitButton" type="submit" value="Add" />
+//   </form>  
 
 
 
   
+ 
+//   <br>
+//   <a href= "/logout"> Click to Log Out </a>  
+  
+// </body>
+// </html>
+
+
+
   </script>
+
+  
+
   
 
 
