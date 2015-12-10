@@ -38,7 +38,11 @@ var postLogin = function(req, res) {
 				});
 			} else if (data) {			
 				// Save username in session object and redirect to restaurant page
-				req.session.ID = data; 
+				var json = JSON.parse(data.value);
+				req.session.ID = data.inx;
+				req.session.firstname = json.firstname;
+				req.session.lastname = json.lastname;
+				req.session.email = json.email; 
 				res.redirect('/restaurants');			
 			} else {
 				// Should not hit this case 
@@ -87,7 +91,7 @@ var postTestRestaurants = function(req, res) {
 		
 
 			res.render('restaurants.ejs', {
-				username: "0", 
+				session: req.session, 
 				message: null, 
 				posts: posts
 			});		
@@ -97,12 +101,7 @@ var test = function(req, res) {
 
 	db.getComment("0", function(err, commentData) {
 
-						console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
-			//			commentTexts.push(commentData.value.text);
-			//			commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
-						hasFinished= true;
-						
-						});
+	});
 	console.log("Finished");
 }
 
@@ -116,144 +115,84 @@ var postRestaurants = function(req, res) {
 		});
 	}
 	db.getFriends("0", function(err, friends) {
-		for (var i = 0; i < friends.length; i++) {
-			console.log("friend: " + friends[i].value);
+		if (err) {
+			console.log("error:", err);
 		}
 		db.getPosts(function(err, posts) {
-			console.log("GOT POSTS?");
-			var postString = [];
-			for (var i = 0; i < posts.length; i++) {
-				posts[i].value.commentOwners = [];
-				posts[i].value.commentTexts = [];
-				var array = JSON.parse(posts[i].value.commentIDs);
-				console.log("array: ", array.length);
-				for (var j = 0; j < array.length; j++) {
-					posts[i].value.commentOwners.push(JSON.stringify(j));
-					posts[i].value.commentTexts.push(JSON.stringify(j));
+			var postsString = []
+			doPosts(postsString, posts, function(err, postsData) {
+				var filteredPosts = []
+				for (var i = 0; i < postsData.length; i++) {
+					if (contains(postsData[i].value.owner1, friends) ||
+						contains(postsData[i].value.owner2, friends)) {
+						filteredPosts.push(postsData[i]);
+					}
 				}
-				console.log("post i : ", posts[i]);
-				postString.push(JSON.stringify(posts[i]));
+				res.render('restaurants.ejs', {session : req.session, message : "", posts : postsData});
+			});	
+		});
+	});
+}
+
+//helper function for checking if an array contains an element
+var contains = function(value, arr) {
+	var contains = false;
+	for (var i = 0; i < arr.length; i++) {
+		if (arr[i] == value) {
+			contains = true;
+		}
+	}
+	return contains;
+}
+
+var doComments = function (post, commentIDs, callback) {
+	async.forEachOf(commentIDs, function(commentID, key, inner_callback){
+		// this is the function that executes on every item in the list
+		// we need to make sure inner_callback gets run exactly once per loop
+		// so that async knows when the item has been processed
+		// this is just like decrementing callsLeft in the previous example
+		post.value.commentOwners = [];
+		post.value.commentTexts = [];
+		db.getComment(JSON.stringify(commentID), function(err, commentData) {
+			if (err) {
+				console.log("error is: ", err);
+			 	inner_callback(err);
+			} else {
+				var nameadd = (JSON.parse(commentData[0]['value']))['firstname'] + " " +
+							  (JSON.parse(commentData[0]['value']))['lastname'];
+				var comtext = (JSON.parse(commentData[0]['value']))['text'];
+				post.value.commentOwners.push(nameadd);
+				post.value.commentTexts.push(comtext);
 			}
-			// for (var i = 0; i < posts.length; i++) {
-			// 	//commentTexts
-			// 	var hasFinished = false;
-			// 	var commentsOwners = []; //we change the json objects list of reply IDs their corresponding text
-			// 	var commentTexts = []; //
-//				console.log("POST i object: " + JSON.stringify(posts[i]) + "length: " + JSON.parse(posts[i].value.commentIDs).length);
-//				for (var k = 0; k < (JSON.parse(posts[i].value.commentIDs)).length; k++) {
-//					console.log("POST i object's comment IDs: " + posts[i].value.commentIDs[k]);
-//				}
-//				var array = JSON.parse(posts[i].value.commentIDs);
-				// for (var j = 0; j < array.length; j++) {
-				// 	console.log("about to call db.get comment");
-				// 	db.getComment(JSON.stringify(array[j]), function(err, commentData) {
-
-									// doLotsOfStuff(array, function() {
-									// 	console.log("Done--------------------------");
-									// });
-									
-									// Wai commening out 
-									// async.forEach(array, function(elm , ){
-									// 		// do stuff 
-									// 		db.getComment("0", function(err, commentData) {
-
-				// 		console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
-				// 		commentTexts.push(commentData.value.text);
-				// 		commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
-				// 		hasFinished= true;
-						
-				// 		});
-
-				// 	while (hasFinished == false) {};
-				// 	hasFinished = false;
-				// }
-				// var hasFinished = false;
-				// while (hasFinished == false) {
-				// 	if (commentTexts.length == posts[i].value.commentIDs.length) {
-				// 		hasFinished = true;
-				// 		posts[i].commentTexts = commentTexts;
-				// 		posts[i].commentOwners = commentOwners;
-				// 	}
-			// 	}
-			// }
-			// for (var i = 0; i < posts.length; i++) {
-			// 	console.log("FULL POST INFO: " , posts[i]);
-			// }
-
-			postsTwo = [JSON.stringify(
-					{'key' : "0", 
-				 	'inx' : "0",
-				  	'value' : {"owner1" 	: "Brian", 
-				  				 'owner2'	: "Wai", 
-				  				 'text'		: "yoooooo my post is this", 
-				  				 'commentTexts' : ["comment 1", "comment 2"],				  				 
-				  				 'commentOwners' : ["Brian", "Wai Commenter"]
-				  				}				  				
-				  			
-				  	}), 
-
-			JSON.stringify(
-					{'key' : "0", 
-				 	'inx' : "0",
-				  	'value' : {"owner1" 	: "Brian", 
-				  				 'owner2'	: "Wai", 
-				  				 'text'		: "yoooooo my post is this", 
-				  				 'commentTexts' : ["comment 1", "comment 2"],
-				  				 'commentOwners' : ["Brian", "Wai Commenter"]
-				  				}				  				
-				  			
-				  	}), 
-
-			];
-
-
-
-			console.log("Post is: ", posts
-			);
-
-			console.log("PostTwo is: ", postsTwo
-			);
-
-			res.render("restaurants.ejs", {
-				username: req.session.ID,
-				message: "", 
-				posts: postString});
-
-		})
+			inner_callback();
+		});		
+	}, function(err){
+		// this function gets called when all items get processed
+		// if any of them resulted in an error, we'll have an error here
+		// otherwise, data will be a list
+		if (err) {
+			console.log("problem with comment callback: ", err);
+		}
+		callback(post);
 	})
-};
+}
 
-
-// var doLotsOfStuff = function (list, callback) {
-// 	async.forEachOf(list, function(itemInList, inner_callback){
-// 		// this is the function that executes on every item in the list
-// 		// we need to make sure inner_callback gets run exactly once per loop
-// 		// so that async knows when the item has been processed
-// 		// this is just like decrementing callsLeft in the previous example
-// 										console.log("fjor each in ", [0,1]); 
-
-// 		db.getComment("0", function(err, commentData) {
-// 							if (!err) 
-// 								console.log("comment data is: ", commentData); 
-// 							else 
-// 							 	console.log("error is: ", err); 
-
-
-// 							console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
-// 					//		commentTexts.push(commentData.value.text);
-// 			//				commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
-// 							hasFinished= true;
-// 							console.log("finished getComment callback");
-							
-// 		});		
-// 	}, function(err, commentDatas){
-// 		console.log("doing outer callback")
-// 		// this function gets called when all items get processed
-// 		// if any of them resulted in an error, we'll have an error here
-// 		// otherwise, data will be a list
-// 		callback(err, commentDatas)
-// 	})
-// }
+var doPosts = function (arr, posts, callback) {
+	async.forEachOf(posts, function(post, key, inner_callback){
+		var commentIDlist = JSON.parse(post.value.commentIDs);
+				doComments(post, commentIDlist, function(err) {
+					inner_callback();
+				});
+	}, function(err){
+		if (err) {
+			console.log("problem with post callback:", err);
+		}
+		// this function gets called when all items get processed
+		// if any of them resulted in an error, we'll have an error here
+		// otherwise, data will be a list
+		callback(err, posts)
+	})
+}
 
 
 var getAjaxRestaurants = function(req, res) {
@@ -312,32 +251,18 @@ var postCreateAccount = function(req, res) {
 				//the data value will return the URL for the user (firstname.lastname.inx)
 				//pass in the response from the server to our app function
 				req.session.ID = data.userID;
+				req.session.firstname = firstname;
+				req.session.lastname = lastname;
+				req.session.email = email;
 				res.redirect('/restaurants');
 			}
 		});
-
-
-		// // Create value json object to put inside table 
-		// var value = JSON.stringify({
-		// 	'password' : passwordInput, 
-		// 	'fullname': nameInput
-		// });	
-		// // Call database put user function 
-		// db.putUser(userInput, value, function(data, err) {
-		// 	if (err) {
-		// 		// errors returned by kvs.exists function 
-		// 		res.render('signup.ejs', {message: err});
-		// 	} else if (data) {			
-		// 		// If signup successful, update session username and redirect to rest 
-		// 		req.session.username = userInput; 
-		// 		res.redirect('/restaurants');			
-		// 	} else {
-		// 		// When both err and data are null, user already exists  
-		// 		res.render('signup.ejs', {message: "User Already Exists!"});
-		// 	}
-		// });
 	}
 };
+
+var postProfile = function(req, res) {
+
+}
 
 var postAddRestaurant = function(req, res) {
 
@@ -409,11 +334,22 @@ var postDeleteRestaurant = function(req, res) {
 	res.send("");
 };
 
+var postAddComment = function(req, res) {
+	var postID = req.params.postID;
+	var text = req.params.commenttext;
+	db.addComment(req.session.firstname, req.session.lastname, req.session.ID, postID, text, function(err, data) {
+
+	}
+}
+
 
 
 var getLogout = function(req, res) {
 	// Set Session user to empty 
-	req.session.username = ''; 
+	req.session.ID = ''; 
+	req.session.firstname = '';
+	req.session.lastname = '';
+	req.session.email = '';
 	// Redirect to main page 
 	res.redirect('/');
 };
@@ -434,7 +370,7 @@ what happened.
  */
 var routes = { 
 		post_testrestaurants: postTestRestaurants,
-		get_testMain : getTestMain,
+		get_testMain : test,
 		get_main: getMain,
 		post_login: postLogin,
 		post_restaurants: postRestaurants,			
@@ -444,7 +380,9 @@ var routes = {
 		get_logout: getLogout,
 		post_ajaxRestaurant: postAjaxRestaurant,
 		get_ajaxRestaurants: getAjaxRestaurants, 
-		post_deleteRestaurant: postDeleteRestaurant
+		post_deleteRestaurant: postDeleteRestaurant,
+		post_profile: postProfile,
+		post_addcomment: postAddComment
 };
 
 module.exports = routes;

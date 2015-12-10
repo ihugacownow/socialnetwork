@@ -10,7 +10,10 @@ var app = express();
 var session = require('express-session'); 
 var sess = {
 		secret: 'password',
-      ID: ''
+      ID: '',
+      firstname: '',
+      lastname: '',
+      email: ''
 }
 
 var async = require('async');
@@ -25,6 +28,8 @@ app.use(express.logger("default"));
    POST is often used when submitting web forms ('method="post"'). */
 
 app.get('/', routes.get_main);
+// app.get('/', routes.get_testMain);
+
 app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);
@@ -36,6 +41,8 @@ app.get('/logout', routes.get_logout);
 app.post('/ajaxrestaurant', routes.post_ajaxRestaurant);
 app.get('/getajaxrestaurants', routes.get_ajaxRestaurants); 
 app.post('/delete', routes.post_deleteRestaurant);
+app.get('/restaurants/:firstname:lastname:ID', routes.post_profile); //TODO
+app.post('/addcomment', routes.post_addcomment);
 
 /* Run the server */
 

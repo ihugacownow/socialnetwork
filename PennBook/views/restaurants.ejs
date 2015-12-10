@@ -57,7 +57,7 @@
 				<th>Person</th> <th>Post</th> 
 				
 				<!-- 		Create the post first -->	
-		  		<% var post = JSON.parse(posts[i]);  %>
+		  		<% var post = posts[i];  %>
 		  		<% var postVal = post['value'];  %>
 		  		<br>	
 			    <tr>
@@ -198,7 +198,7 @@
 	 			'owner'	: $('input[name=postID]').val(),
 	 			'firstname' : firstname, 
 	 			 'lastname' : lastname, 
-	 			 'postID'   : c
+	 			 'postID'   : "0"
  				};  		
  		
  		var commentData = JSON.stringify(formData);

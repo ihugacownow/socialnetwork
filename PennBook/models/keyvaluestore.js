@@ -133,8 +133,6 @@
    * Callback returns a list of objects with keys "inx" and "value"
    */
   keyvaluestore.prototype.get = function(search, callback) {
-
-    console.log("starting calling kvs get comment?: SEARCH VALUE IS: " + search);
     var self = this;
     if (self.inx === -1){
       callback("Error using table - call init first!", null)
@@ -154,30 +152,20 @@
           TableName: self.tableName,
           AttributesToGet: [ 'inx', 'value' ]
       };
-      console.log("Params are: ", params['KeyConditions']['keyword']['AttributeValueList']); 
-            console.log("this database : ", self); 
 
-
-      console.log("About to query! value: " + search);
       db.query(params, function(err, data) {
-        console.log("finished querying!");
         if (err) {
-
           console.log("error: " + err); 
         }
         if (data.Items.length == 0) {
-          console.log("ERROR??: " + err + ".data.Items.length??: " + data.Items.length);
           callback(err, null);
         } else {
             var items = [];
-            console.log("number of items: " + data.Items.length);
-
             for (var i = 0; i < data.Items.length; i++) {
               items.push({"inx": data.Items[i].inx.N, "value": data.Items[i].value.S});
             }
 
             self.cache.set(search, items);
-            console.log("about to call the db callback!");
             callback(err, items);
         }
       });
@@ -328,7 +316,7 @@
    * @param value - either a value or an array of values
    * callback with inx of put
    */
-  keyvaluestore.prototype.putUser = function(value, callback) {
+  keyvaluestore.prototype.put2 = function(value, callback) {
     var self = this;
     if (self.inx === -1){
       callback("Error using table - call init first!", null)
