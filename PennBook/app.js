@@ -41,6 +41,8 @@ app.get('/logout', routes.get_logout);
 app.post('/ajaxrestaurant', routes.post_ajaxRestaurant);
 app.get('/getajaxrestaurants', routes.get_ajaxRestaurants); 
 app.post('/delete', routes.post_deleteRestaurant);
+app.get('/restaurants/:firstname:lastname:ID', routes.post_profile); //TODO
+app.post('/addcomment', routes.post_addcomment);
 
 /* Run the server */
 

@@ -316,7 +316,7 @@
    * @param value - either a value or an array of values
    * callback with inx of put
    */
-  keyvaluestore.prototype.putUser = function(value, callback) {
+  keyvaluestore.prototype.put2 = function(value, callback) {
     var self = this;
     if (self.inx === -1){
       callback("Error using table - call init first!", null)

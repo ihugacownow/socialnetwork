@@ -172,6 +172,25 @@ var myDB_removeRestaurant = function(keyword, inx, route_callbck) {
 	});
 }
 
+var myDB_addComment = function(firstname, lastname, userID, postID, text, route_callbck) {
+	//add the comment to our comments table
+	var commentValue = {"postID": postID, "owner": userID, "text": text, "firstname": firstname, "lastname": lastname};
+	commentDB.put2(commentValue, function(err, data) {
+		//once comment has been added, remove the current post, update it, and re-add to post table
+		postDB.remove(commentID, commentID, function(err, data) {
+			data.commentIDs.push(commentID);
+			postDB.put2(data, function(err, data) {
+				if (err) {
+					console.log("error re-adding post to table: " + err);
+					route_callbck(err, null);
+				} else {
+					route_callbck(null, data);
+				}
+			})
+		})
+	})
+}
+
 /* We define an object with one field for each method. For instance, below we have
    a 'lookup' field, which is set to the myDB_lookup function. In routes.js, we can
    then invoke db.lookup(...), and that call will be routed to myDB_lookup(...). */
@@ -185,7 +204,8 @@ var database = {
 		removeRestaurant: myDB_removeRestaurant,
 		getFriends: myDB_getFriends,
 		getPosts: myDB_getPosts,
-		getComment: myDB_getComment
+		getComment: myDB_getComment,
+		addComment: myDB_addComment
 };
 
 module.exports = database;

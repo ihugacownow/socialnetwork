@@ -121,12 +121,29 @@ var postRestaurants = function(req, res) {
 		db.getPosts(function(err, posts) {
 			var postsString = []
 			doPosts(postsString, posts, function(err, postsData) {
+				var filteredPosts = []
+				for (var i = 0; i < postsData.length; i++) {
+					if (contains(postsData[i].value.owner1, friends) ||
+						contains(postsData[i].value.owner2, friends)) {
+						filteredPosts.push(postsData[i]);
+					}
+				}
 				res.render('restaurants.ejs', {session : req.session, message : "", posts : postsData});
 			});	
 		});
 	});
 }
 
+//helper function for checking if an array contains an element
+var contains = function(value, arr) {
+	var contains = false;
+	for (var i = 0; i < arr.length; i++) {
+		if (arr[i] == value) {
+			contains = true;
+		}
+	}
+	return contains;
+}
 
 var doComments = function (post, commentIDs, callback) {
 	async.forEachOf(commentIDs, function(commentID, key, inner_callback){
@@ -243,6 +260,10 @@ var postCreateAccount = function(req, res) {
 	}
 };
 
+var postProfile = function(req, res) {
+
+}
+
 var postAddRestaurant = function(req, res) {
 
 	console.log("postAddRestaurant called now ");
@@ -313,6 +334,14 @@ var postDeleteRestaurant = function(req, res) {
 	res.send("");
 };
 
+var postAddComment = function(req, res) {
+	var postID = req.params.postID;
+	var text = req.params.commenttext;
+	db.addComment(req.session.firstname, req.session.lastname, req.session.ID, postID, text, function(err, data) {
+
+	}
+}
+
 
 
 var getLogout = function(req, res) {
@@ -351,7 +380,9 @@ var routes = {
 		get_logout: getLogout,
 		post_ajaxRestaurant: postAjaxRestaurant,
 		get_ajaxRestaurants: getAjaxRestaurants, 
-		post_deleteRestaurant: postDeleteRestaurant
+		post_deleteRestaurant: postDeleteRestaurant,
+		post_profile: postProfile,
+		post_addcomment: postAddComment
 };
 
 module.exports = routes;
