@@ -116,144 +116,148 @@ var postRestaurants = function(req, res) {
 		});
 	}
 	db.getFriends("0", function(err, friends) {
+		if (err) {
+			console.log("error:", err);
+		}
 		for (var i = 0; i < friends.length; i++) {
 			console.log("friend: " + friends[i].value);
 		}
 		db.getPosts(function(err, posts) {
 			console.log("GOT POSTS?");
-			var postString = [];
-			for (var i = 0; i < posts.length; i++) {
-				posts[i].value.commentOwners = [];
-				posts[i].value.commentTexts = [];
-				var array = JSON.parse(posts[i].value.commentIDs);
-				console.log("array: ", array.length);
-				for (var j = 0; j < array.length; j++) {
-					posts[i].value.commentOwners.push(JSON.stringify(j));
-					posts[i].value.commentTexts.push(JSON.stringify(j));
-				}
-				console.log("post i : ", posts[i]);
-				postString.push(JSON.stringify(posts[i]));
-			}
-			// for (var i = 0; i < posts.length; i++) {
-			// 	//commentTexts
-			// 	var hasFinished = false;
-			// 	var commentsOwners = []; //we change the json objects list of reply IDs their corresponding text
-			// 	var commentTexts = []; //
-//				console.log("POST i object: " + JSON.stringify(posts[i]) + "length: " + JSON.parse(posts[i].value.commentIDs).length);
-//				for (var k = 0; k < (JSON.parse(posts[i].value.commentIDs)).length; k++) {
-//					console.log("POST i object's comment IDs: " + posts[i].value.commentIDs[k]);
-//				}
-//				var array = JSON.parse(posts[i].value.commentIDs);
-				// for (var j = 0; j < array.length; j++) {
-				// 	console.log("about to call db.get comment");
-				// 	db.getComment(JSON.stringify(array[j]), function(err, commentData) {
 
-									// doLotsOfStuff(array, function() {
-									// 	console.log("Done--------------------------");
-									// });
-									
-									// Wai commening out 
-									// async.forEach(array, function(elm , ){
-									// 		// do stuff 
-									// 		db.getComment("0", function(err, commentData) {
+			var postsString = []
+			doPosts(postsString, posts, function(err, postsData) {
+				console.log("post datas: ", postsData);
+								console.log("post datas zero: ", postsData[0]);
 
-				// 		console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
-				// 		commentTexts.push(commentData.value.text);
-				// 		commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
-				// 		hasFinished= true;
-						
-				// 		});
-
-				// 	while (hasFinished == false) {};
-				// 	hasFinished = false;
+				// for (var i = 0; i < postsData.length; i++) {
+				// 	console.log("adding posts to postSTring: ", postsData[i]);
+				// 	postsString[i] = (JSON.stringify(postsData[i]));
 				// }
-				// var hasFinished = false;
-				// while (hasFinished == false) {
-				// 	if (commentTexts.length == posts[i].value.commentIDs.length) {
-				// 		hasFinished = true;
-				// 		posts[i].commentTexts = commentTexts;
-				// 		posts[i].commentOwners = commentOwners;
-				// 	}
-			// 	}
-			// }
-			// for (var i = 0; i < posts.length; i++) {
-			// 	console.log("FULL POST INFO: " , posts[i]);
-			// }
+				console.log("should be rendering now");
+				console.log("postsData will be: ", postsData);
+								console.log("postsData comment owner will be: ", postsData[0]['value']['commentOwners']);
+								console.log("postsData comment text will be: ", postsData[0]['value']['commentTexts']);
 
-			postsTwo = [JSON.stringify(
-					{'key' : "0", 
-				 	'inx' : "0",
-				  	'value' : {"owner1" 	: "Brian", 
-				  				 'owner2'	: "Wai", 
-				  				 'text'		: "yoooooo my post is this", 
-				  				 'commentTexts' : ["comment 1", "comment 2"],				  				 
-				  				 'commentOwners' : ["Brian", "Wai Commenter"]
-				  				}				  				
-				  			
-				  	}), 
+				res.render('restaurants.ejs', {username : req.session.ID, message : "", posts : postsData});
+			});	
+		});
+	});
+}
 
-			JSON.stringify(
-					{'key' : "0", 
-				 	'inx' : "0",
-				  	'value' : {"owner1" 	: "Brian", 
-				  				 'owner2'	: "Wai", 
-				  				 'text'		: "yoooooo my post is this", 
-				  				 'commentTexts' : ["comment 1", "comment 2"],
-				  				 'commentOwners' : ["Brian", "Wai Commenter"]
-				  				}				  				
-				  			
-				  	}), 
-
-			];
-
-
-
-			console.log("Post is: ", posts
-			);
-
-			console.log("PostTwo is: ", postsTwo
-			);
-
-			res.render("restaurants.ejs", {
-				username: req.session.ID,
-				message: "", 
-				posts: postString});
-
-		})
-	})
-};
-
-
-// var doLotsOfStuff = function (list, callback) {
-// 	async.forEachOf(list, function(itemInList, inner_callback){
-// 		// this is the function that executes on every item in the list
-// 		// we need to make sure inner_callback gets run exactly once per loop
-// 		// so that async knows when the item has been processed
-// 		// this is just like decrementing callsLeft in the previous example
-// 										console.log("fjor each in ", [0,1]); 
-
-// 		db.getComment("0", function(err, commentData) {
-// 							if (!err) 
-// 								console.log("comment data is: ", commentData); 
-// 							else 
-// 							 	console.log("error is: ", err); 
-
-
-// 							console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
-// 					//		commentTexts.push(commentData.value.text);
-// 			//				commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
-// 							hasFinished= true;
-// 							console.log("finished getComment callback");
-							
-// 		});		
-// 	}, function(err, commentDatas){
-// 		console.log("doing outer callback")
-// 		// this function gets called when all items get processed
-// 		// if any of them resulted in an error, we'll have an error here
-// 		// otherwise, data will be a list
-// 		callback(err, commentDatas)
-// 	})
+// var inner_callback = function(post, err, commentDatas) {
+// 	if (err) {
+// 		console.log("error with inner callback for comments: " + err);
+// 	} else {
+// 		console.log("----------------");
+// 		console.log("post.value: ", post.value);
+// //		post.value.commentOwners.push(commentData.value.owner);
+// //		post.value.commentTexts.push(commentData.value.text);
+// 	}
 // }
+
+
+var doComments = function (post, commentIDs, callback) {
+	async.forEachOf(commentIDs, function(commentID, key, inner_callback){
+		// this is the function that executes on every item in the list
+		// we need to make sure inner_callback gets run exactly once per loop
+		// so that async knows when the item has been processed
+		// this is just like decrementing callsLeft in the previous example
+		post.value.commentOwners = [];
+		post.value.commentTexts = [];
+		console.log(" FUCK THIS SHIT ");
+		console.log("post.value.commentTexts:", post.value.commentTexts);
+		var commentDatas = []
+		db.getComment(JSON.stringify(commentID), function(err, commentData) {
+							if (err) {
+								console.log("error is: ", err);
+							 	inner_callback(err);
+							} else {
+								console.log("commentdata:", commentData);
+								console.log("sub values of comment data is: ", JSON.parse(commentData[0].value));
+								console.log("first name is...:" + (JSON.parse(commentData[0]['value']))['firstname']);
+								var nameadd = (JSON.parse(commentData[0]['value']))['firstname'] + " " +
+													(JSON.parse(commentData[0]['value']))['lastname'];
+								var comtext = (JSON.parse(commentData[0]['value']))['text'];
+								post.value.commentOwners.push(nameadd);
+								post.value.commentTexts.push(comtext);
+
+
+								console.log("post value after for each comment adding is: ", post.value);
+								console.log("post value after for each comment adding is: ", post.value.commentOwners);
+
+								
+
+							 }
+
+
+
+							console.log("finished getting a comment? commentData: ", commentData[0]);
+							
+							console.log("finished getComment callback");
+	//						commentDatas[key] = commentData[0]
+									inner_callback();
+
+							
+		});		
+
+
+	}, function(err){
+		console.log("doing outer callback for comments")
+		// this function gets called when all items get processed
+		// if any of them resulted in an error, we'll have an error here
+		// otherwise, data will be a list
+		if (err) {
+			console.log("problem with comment callback: ", err);
+		}
+		console.log("POST: ", post);
+		callback(post);
+	})
+}
+
+var doPosts = function (arr, posts, callback) {
+	async.forEachOf(posts, function(post, key, inner_callback){
+		var commentIDlist = JSON.parse(post.value.commentIDs);
+				doComments(post, commentIDlist, function(err, commentDatas) {
+					console.log("Done and moving on to posts callback--------------------------");
+					console.log("commentDatas: ", commentDatas);
+					// var postString = [];
+					// post.value.commentOwners = [];
+					// post.value.commentTexts = [];
+					// for (var j = 0; j < array.length; j++) {
+					// 	post.value.commentOwners.push(commentDatas[j].value.owner);
+					// 	post.value.commentTexts.push(commentDatas[j].value.text);
+					// }
+
+					// for (var k = 0; k < posts.length; k++) {
+					// 	posts[k].value.commentOwners = [];
+					// 	posts[k].value.commentTexts = [];
+					// 	var array = JSON.parse(posts[i].value.commentIDs);
+					// 	console.log("array: ", array.length);
+					// 	for (var j = 0; j < array.length; j++) {
+					// 		posts[k].value.commentOwners.push(commentDatas[i]);
+					// 		posts[k].value.commentTexts.push(JSON.stringify(j));
+					// 	}
+					// 	console.log("post i : ", posts[i]);
+					// 	postString.push(JSON.stringify(posts[i]));
+					// }
+					console.log("comment Datas in the callback: ", commentDatas);
+//					post.comment = commentDatas[0]
+					inner_callback();
+				});
+				
+	}, function(err){
+		if (err) {
+			console.log("problem with post callback:", err);
+		}
+		console.log("doing outer callback for posts")
+		// this function gets called when all items get processed
+		// if any of them resulted in an error, we'll have an error here
+		// otherwise, data will be a list
+		console.log("called back post datas: ", posts);
+		callback(err, posts)
+	})
+}
 
 
 var getAjaxRestaurants = function(req, res) {
@@ -434,7 +438,7 @@ what happened.
  */
 var routes = { 
 		post_testrestaurants: postTestRestaurants,
-		get_testMain : getTestMain,
+		get_testMain : test,
 		get_main: getMain,
 		post_login: postLogin,
 		post_restaurants: postRestaurants,			

@@ -25,6 +25,8 @@ app.use(express.logger("default"));
    POST is often used when submitting web forms ('method="post"'). */
 
 app.get('/', routes.get_main);
+// app.get('/', routes.get_testMain);
+
 app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);

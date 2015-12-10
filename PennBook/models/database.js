@@ -146,6 +146,7 @@ var myDB_getComment = function(commentID, route_callbck) {
 			route_callbck(err, null);
 		} else {
 			console.log("Got comment inx/values array, i think");
+			console.log("Got data:", data);
 			route_callbck(null, data);
 		}
 	})
