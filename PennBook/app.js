@@ -12,6 +12,8 @@ var sess = {
 		secret: 'password',
       ID: ''
 }
+
+var async = require('async');
 app.use(session(sess));
 app.use(express.bodyParser());
 app.use(express.logger("default")); 
@@ -27,7 +29,7 @@ app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);
 // app.get('/restaurants', routes.post_restaurants);
-app.get('/restaurants', routes.post_testrestaurants);
+app.get('/restaurants', routes.post_restaurants);
 
 app.post('/addrestaurant', routes.post_addRestaurant);
 app.get('/logout', routes.get_logout);
