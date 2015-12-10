@@ -29,10 +29,11 @@ var users = [
 		"affiliation" : "University of Pennsylvania",
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",
-		"online" : false,
+		"online" : "false",
 		"posts" : JSON.stringify([0]),
 		"comments" : JSON.stringify([]),
-		"friendposts" : JSON.stringify([0])
+		"friendposts" : JSON.stringify([0]), 
+		"notifications" : JSON.stringify([])
 	})
 	], ["wuwc@sas.upenn.edu", JSON.stringify({
 		"firstname" : "Wai",
@@ -42,10 +43,11 @@ var users = [
 		"affiliation" : "University of Pennsylvania",
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",
-		"online" : false,
+		"online" : "false",
 		"posts" : JSON.stringify([]),
 		"comments" : JSON.stringify({"array" : [0]}),
-		"friendposts" : JSON.stringify([0])
+		"friendposts" : JSON.stringify([0]),
+		"notifications" : JSON.stringify([])
 	})],
 	["test", JSON.stringify({
 		"firstname" : "test",

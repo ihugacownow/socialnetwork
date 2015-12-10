@@ -10,7 +10,7 @@ var getMain = function(req, res) {
 };
 
 var getTestMain = function(req, res) {
-	res.render('index.ejs', { 
+	res.render('profile.ejs', { 
 		message: "", 
 		footer: "Full Name: Wai Wu, SEAS Login: wuwc"
 	});
@@ -348,9 +348,9 @@ var postAddComment = function(req, res) {
 	var postID = req.params.postID;
 	var text = req.params.commenttext;
 	console.log("about to call db add comment!");
-	console.log("params:", req.params); 
-		console.log("params for postID and text:", req.params.postID); 
-		console.log("params for postID and text:", req.params.commenttext); 
+	console.log("params:", req.body); 
+		console.log("params for postID and text:", req.body.postID); 
+		console.log("params for postID and text:", req.body.commenttext); 
 		console.log("req session firstname lastname", req.session.firstname, req.session.lastname);
 
 
@@ -387,7 +387,7 @@ what happened.
  */
 var routes = { 
 		post_testrestaurants: postTestRestaurants,
-		get_testMain : test,
+		get_testMain : getTestMain,
 		get_main: getMain,
 		post_login: postLogin,
 		post_restaurants: postRestaurants,			

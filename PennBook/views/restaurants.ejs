@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
   <head><title>Map</title>
@@ -84,7 +86,6 @@
 			<form id="addcomment" method="post" action="addcomment">
 		    <input type="text" id="commenttext" name="commenttext" placeholder="Add comment" required>
 		    <input type="hidden" id="postID" name="postID" value=<%=post['key']%>>
-		    <% alert("post id is " + post['key']) %>
 		    <br><br> 
 		    <input id="submitButton" type="submit" value="Add" />
 		  	</form>  			
