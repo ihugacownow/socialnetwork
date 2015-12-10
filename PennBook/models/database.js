@@ -198,6 +198,26 @@ var myDB_addComment = function(firstname, lastname, userID, postID, text, route_
 	})
 }
 
+var myDB_getUsers = function(route_callbck) {
+	userDB.scanKeyValues(function(err, data) {
+		if (err) {
+			console.log("could not scan key/values of users:" + err);
+		} else {
+			route_callbck(null, data);
+		}
+	})
+}
+
+var myDB_allFriends = function(route_callbck) {
+	friendDB.scanKeyValues(function(err, data) {
+		if (err) {
+			console.log("could not scan key/values of friends table: " + err);
+		} else {
+			route_callbck(null, data);
+		}
+	})
+}
+
 /* We define an object with one field for each method. For instance, below we have
    a 'lookup' field, which is set to the myDB_lookup function. In routes.js, we can
    then invoke db.lookup(...), and that call will be routed to myDB_lookup(...). */
@@ -212,7 +232,11 @@ var database = {
 		getFriends: myDB_getFriends,
 		getPosts: myDB_getPosts,
 		getComment: myDB_getComment,
-		addComment: myDB_addComment
+		addComment: myDB_addComment,
+		getUsers: myDB_getUsers,
+		allFriends: myDB_allFriends,
+		getNotifications: myDB_getNotifications,
+		updateNotifications: myDB_updateNotifications
 };
 
 module.exports = database;

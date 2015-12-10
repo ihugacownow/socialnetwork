@@ -116,6 +116,7 @@ var postRestaurants = function(req, res) {
 		});
 	}
 	db.getFriends("0", function(err, friends) {
+		req.session.friends = friends; //set user's friend list
 		var friendsArr = [];
 		for (var i = 0; i < friends.length; i++) {
 			friendsArr.push(friends[i].value);
@@ -128,13 +129,10 @@ var postRestaurants = function(req, res) {
 			doPosts(postsString, posts, function(err, postsData) {
 				var filteredPosts = []
 				for (var i = 0; i < postsData.length; i++) {
-					console.log("friends", friends);
-					if (contains(postsData[i].value.owner1, friends) != -1 ||
-						contains(postsData[i].value.owner2, friends) != -1) {
+					if (contains(postsData[i].value.owner1, friends) !== -1 ||
+						contains(postsData[i].value.owner2, friends) !== -1) {
 						filteredPosts.push(postsData[i]);
-						console.log("success!");
 					}
-					console.log("filtered posts: ", filteredPosts);
 
 				}
 				res.render('restaurants.ejs', {session : req.session, message : "", posts : postsData});
@@ -270,10 +268,6 @@ var postCreateAccount = function(req, res) {
 	}
 };
 
-var postProfile = function(req, res) {
-
-}
-
 var postAddRestaurant = function(req, res) {
 
 	console.log("postAddRestaurant called now ");
@@ -344,11 +338,11 @@ var postDeleteRestaurant = function(req, res) {
 	res.send("");
 };
 
+//add a comment to a post
 var postAddComment = function(req, res) {
-	var postID = req.params.postID;
-	var text = req.params.commenttext;
-	console.log("about to call db add comment!");
-	console.log("params:", req.params); 
+	var postID = req.body.postID;
+	var text = req.body.commenttext;
+	console.log("about to call db add comment!"); 
 		console.log("params for postID and text:", req.params.postID); 
 		console.log("params for postID and text:", req.params.commenttext); 
 		console.log("req session firstname lastname", req.session.firstname, req.session.lastname);
@@ -359,6 +353,118 @@ var postAddComment = function(req, res) {
 	})
 }
 
+//load a user'sprofile (when user clicks on their "profile" button OR they search for another user)
+var postProfile = function(req, res) {
+	var themID = req.body.ID; //id of the person who's profile page you're on
+	var youID = req.session.ID; //id of the person logged in
+	db.getPosts(function(err, posts) {
+			var postsString = []
+			doPosts(postsString, posts, function(err, postsData) {
+				var filteredPosts = []
+				for (var i = 0; i < postsData.length; i++) {
+					//only include posts such that the user is owner2 (he was sent the post)
+					if (postsData[i].value.owner2 == themID) {
+						filteredPosts.push(postsData[i]);
+					}
+
+				}
+				//finally, determine what type of friend request button to send
+				//0=add friend, 1=request sent, 2=already added, 3=fan of you!
+				var youToThem = false;
+				var themToYou = false;
+				db.allFriends(function(err, friends) {
+					if (err) {
+						console.log("couldn't load friends key/values!");
+					} else {
+						for (int i = 0; i < friends.length; i++) {
+							if (friends[i].key == themID && friends[i].value == youID) {
+								themToYou = true;
+							}
+							if (friends[i].key == youID && friends[i].value == themID) {
+								youToThem = true;
+							}
+						}
+
+					}
+					var val;
+					if (youToThem && themToYou) {
+						val = 2;
+					} else if (youToThem) {
+						val = 1;
+					} else if (themToYou) {
+						val = 3;
+					} else {
+						val = 0;
+					}
+					//also get the user's value fields (must display these if it is current user)
+					db.lookupUser(req.session.id, function(userData, err) {
+						res.render('profile.ejs', {session : req.session, userObject: userData.value, friendInt : val, message : "", posts : postsData});
+					})
+				})
+			});	
+		});
+}
+
+//search for a user (sends front-end a list of users + their webpages)
+var postSearch = function(req, res) {
+	var firstname = req.body.firstname;
+	var lastname = req.body.lastname;
+	//get the key-value pairs of all users
+	db.getUsers(function(err, users) {
+		if (err) {
+			console.log("error getting list of users: " + err);
+		} else {
+			//make an array of all the users with the given first and last name
+			var validUsers = [];
+			for (int i = 0; i < users.length; i++) {
+				console.log("Users[i].value is: ", users[i].value);
+				if (users[i].value.firstname == firstname && users[i].value.lastname == lastname) {
+					validUsers.push({"firstname": firstname, "lastname": lastname, "ID": users[i].key});
+				}
+			}
+			res.send(validUsers);
+		}
+	}
+}
+
+ var getNotifications = function(req, res) {
+ }
+// 	//get the notifications
+// 	db.lookupUser(req.session.email, req.session.password, function(userData, err) {
+// 		if (err) {
+// 			console.log("error looking up user!" + err);
+// 		} else {
+// 			//set the notifications array for the current user to be empty
+// 			db.updateNotifications(req.session.ID function(err, data) {
+// 				if (err) {
+// 					console.log("error updating notifications!" + err);
+// 				} else {
+// 					//send the user the original notifications array
+// 					var json = JSON.parse(userData);
+
+// 					res.send({"notifications": userData.notifications});
+// 				}
+// 			})
+// 		}
+// 	})
+// 	db.lookupUser(userInput, passwordInput, function(data, err) {
+// 			if (err) {
+// 				// User or Password not valid, so redirect to login page with error message 
+// 				res.render('main.ejs', {
+// 					userInput: userInput, 
+// 					message: err, 
+// 					footer: "Full Name: Wai Wu, SEAS Login: wuwc"
+// 				});
+// 			} else if (data) {			
+// 				// Save username in session object and redirect to restaurant page
+// 				var json = JSON.parse(data.value);
+// 				console.log("req session values!!", json);
+// 				req.session.ID = data.inx;
+// 				req.session.firstname = json.firstname;
+// 				req.session.lastname = json.lastname;
+// 				req.session.email = json.email; 
+// 				res.redirect('/restaurants');
+// }
 
 
 var getLogout = function(req, res) {
@@ -367,6 +473,7 @@ var getLogout = function(req, res) {
 	req.session.firstname = '';
 	req.session.lastname = '';
 	req.session.email = '';
+	req.session.friends = '[]';
 	// Redirect to main page 
 	res.redirect('/');
 };
@@ -398,8 +505,10 @@ var routes = {
 		post_ajaxRestaurant: postAjaxRestaurant,
 		get_ajaxRestaurants: getAjaxRestaurants, 
 		post_deleteRestaurant: postDeleteRestaurant,
+		post_addcomment: postAddComment,
 		post_profile: postProfile,
-		post_addcomment: postAddComment
+		post_search: postSearch,
+		get_notifications: getNotifications
 };
 
 module.exports = routes;
