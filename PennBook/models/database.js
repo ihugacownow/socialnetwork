@@ -50,7 +50,7 @@ var myDB_getUser = function(username, password, route_callbck){
 			// Access json from array of json 
 			var json = JSON.parse(data[0].value); 
 			if (json.password == password) {
-				route_callbck(data[0].inx, null);
+				route_callbck(json, null);
 			} else {
 				// password is not the same as input password
 				route_callbck(null, "password is invalid");
@@ -95,26 +95,7 @@ var myDB_putUser = function(key, value, route_callbck){
 			})
 			route_callbck(data, null);
 		}
-	})
-
-	// userDB.exists(username, function(err, data) {
-	// 	if (!data) {
-	// 		// No identical username entry exists, so can add user 
-	// 		userDB.put(username, value, function (err, dataTwo) {
-	// 			if (err) {
-	// 				route_callbck(null, err);
-	// 			} else if (dataTwo == null) {
-	// 				route_callbck(null, null);
-	// 			} else {					
-	// 				route_callbck("User added in succesfully", null);						
-	// 			}
-	// 		});
-	// 	} else {
-	// 		// exist data is true means that user exists, so pass back null data
-	// 		// to indicate user was not added in successfully 
-	// 		route_callbck(null, null); 
-	// 	}
-	// });		
+	})	
 }
 
 //for getting all friends of a given user

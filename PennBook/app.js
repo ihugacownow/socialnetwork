@@ -10,7 +10,10 @@ var app = express();
 var session = require('express-session'); 
 var sess = {
 		secret: 'password',
-      ID: ''
+      ID: '',
+      username: '',
+      password: '',
+      email: ''
 }
 
 var async = require('async');

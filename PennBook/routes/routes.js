@@ -38,7 +38,10 @@ var postLogin = function(req, res) {
 				});
 			} else if (data) {			
 				// Save username in session object and redirect to restaurant page
-				req.session.ID = data; 
+				req.session.ID = data.inx;
+				req.session.firstname = data.firstname;
+				req.session.lastname = data.lastname;
+				req.session.email = userInput;
 				res.redirect('/restaurants');			
 			} else {
 				// Should not hit this case 
@@ -119,42 +122,13 @@ var postRestaurants = function(req, res) {
 		if (err) {
 			console.log("error:", err);
 		}
-		for (var i = 0; i < friends.length; i++) {
-			console.log("friend: " + friends[i].value);
-		}
 		db.getPosts(function(err, posts) {
-			console.log("GOT POSTS?");
-
-			var postsString = []
 			doPosts(postsString, posts, function(err, postsData) {
-				console.log("post datas: ", postsData);
-								console.log("post datas zero: ", postsData[0]);
-
-				// for (var i = 0; i < postsData.length; i++) {
-				// 	console.log("adding posts to postSTring: ", postsData[i]);
-				// 	postsString[i] = (JSON.stringify(postsData[i]));
-				// }
-				console.log("should be rendering now");
-				console.log("postsData will be: ", postsData);
-								console.log("postsData comment owner will be: ", postsData[0]['value']['commentOwners']);
-								console.log("postsData comment text will be: ", postsData[0]['value']['commentTexts']);
-
 				res.render('restaurants.ejs', {username : req.session.ID, message : "", posts : postsData});
 			});	
 		});
 	});
 }
-
-// var inner_callback = function(post, err, commentDatas) {
-// 	if (err) {
-// 		console.log("error with inner callback for comments: " + err);
-// 	} else {
-// 		console.log("----------------");
-// 		console.log("post.value: ", post.value);
-// //		post.value.commentOwners.push(commentData.value.owner);
-// //		post.value.commentTexts.push(commentData.value.text);
-// 	}
-// }
 
 
 var doComments = function (post, commentIDs, callback) {
@@ -165,43 +139,19 @@ var doComments = function (post, commentIDs, callback) {
 		// this is just like decrementing callsLeft in the previous example
 		post.value.commentOwners = [];
 		post.value.commentTexts = [];
-		console.log(" FUCK THIS SHIT ");
-		console.log("post.value.commentTexts:", post.value.commentTexts);
-		var commentDatas = []
 		db.getComment(JSON.stringify(commentID), function(err, commentData) {
-							if (err) {
-								console.log("error is: ", err);
-							 	inner_callback(err);
-							} else {
-								console.log("commentdata:", commentData);
-								console.log("sub values of comment data is: ", JSON.parse(commentData[0].value));
-								console.log("first name is...:" + (JSON.parse(commentData[0]['value']))['firstname']);
-								var nameadd = (JSON.parse(commentData[0]['value']))['firstname'] + " " +
-													(JSON.parse(commentData[0]['value']))['lastname'];
-								var comtext = (JSON.parse(commentData[0]['value']))['text'];
-								post.value.commentOwners.push(nameadd);
-								post.value.commentTexts.push(comtext);
-
-
-								console.log("post value after for each comment adding is: ", post.value);
-								console.log("post value after for each comment adding is: ", post.value.commentOwners);
-
-								
-
-							 }
-
-
-
-							console.log("finished getting a comment? commentData: ", commentData[0]);
-							
-							console.log("finished getComment callback");
-	//						commentDatas[key] = commentData[0]
-									inner_callback();
-
-							
+			if (err) {
+				console.log("error is: ", err);
+			 	inner_callback();
+			} else {
+				var nameadd = (JSON.parse(commentData[0]['value']))['firstname'] + " " +
+							  (JSON.parse(commentData[0]['value']))['lastname'];
+				var comtext = (JSON.parse(commentData[0]['value']))['text'];
+				post.value.commentOwners.push(nameadd);
+				post.value.commentTexts.push(comtext);
+			 }
+			inner_callback();	
 		});		
-
-
 	}, function(err){
 		console.log("doing outer callback for comments")
 		// this function gets called when all items get processed
@@ -219,30 +169,6 @@ var doPosts = function (arr, posts, callback) {
 	async.forEachOf(posts, function(post, key, inner_callback){
 		var commentIDlist = JSON.parse(post.value.commentIDs);
 				doComments(post, commentIDlist, function(err, commentDatas) {
-					console.log("Done and moving on to posts callback--------------------------");
-					console.log("commentDatas: ", commentDatas);
-					// var postString = [];
-					// post.value.commentOwners = [];
-					// post.value.commentTexts = [];
-					// for (var j = 0; j < array.length; j++) {
-					// 	post.value.commentOwners.push(commentDatas[j].value.owner);
-					// 	post.value.commentTexts.push(commentDatas[j].value.text);
-					// }
-
-					// for (var k = 0; k < posts.length; k++) {
-					// 	posts[k].value.commentOwners = [];
-					// 	posts[k].value.commentTexts = [];
-					// 	var array = JSON.parse(posts[i].value.commentIDs);
-					// 	console.log("array: ", array.length);
-					// 	for (var j = 0; j < array.length; j++) {
-					// 		posts[k].value.commentOwners.push(commentDatas[i]);
-					// 		posts[k].value.commentTexts.push(JSON.stringify(j));
-					// 	}
-					// 	console.log("post i : ", posts[i]);
-					// 	postString.push(JSON.stringify(posts[i]));
-					// }
-					console.log("comment Datas in the callback: ", commentDatas);
-//					post.comment = commentDatas[0]
 					inner_callback();
 				});
 				
@@ -316,30 +242,12 @@ var postCreateAccount = function(req, res) {
 				//the data value will return the URL for the user (firstname.lastname.inx)
 				//pass in the response from the server to our app function
 				req.session.ID = data.userID;
+				req.session.firstname = firstname;
+				req.session.lastname = lastname;
+				req.session.email = email;
 				res.redirect('/restaurants');
 			}
 		});
-
-
-		// // Create value json object to put inside table 
-		// var value = JSON.stringify({
-		// 	'password' : passwordInput, 
-		// 	'fullname': nameInput
-		// });	
-		// // Call database put user function 
-		// db.putUser(userInput, value, function(data, err) {
-		// 	if (err) {
-		// 		// errors returned by kvs.exists function 
-		// 		res.render('signup.ejs', {message: err});
-		// 	} else if (data) {			
-		// 		// If signup successful, update session username and redirect to rest 
-		// 		req.session.username = userInput; 
-		// 		res.redirect('/restaurants');			
-		// 	} else {
-		// 		// When both err and data are null, user already exists  
-		// 		res.render('signup.ejs', {message: "User Already Exists!"});
-		// 	}
-		// });
 	}
 };
 
@@ -417,7 +325,10 @@ var postDeleteRestaurant = function(req, res) {
 
 var getLogout = function(req, res) {
 	// Set Session user to empty 
-	req.session.username = ''; 
+	req.session.ID = '';
+	req.session.firstname = '';
+	req.session.lastname = '';
+	req.session.email = ''; 
 	// Redirect to main page 
 	res.redirect('/');
 };

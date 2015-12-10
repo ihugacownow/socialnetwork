@@ -154,24 +154,16 @@
           TableName: self.tableName,
           AttributesToGet: [ 'inx', 'value' ]
       };
-      console.log("Params are: ", params['KeyConditions']['keyword']['AttributeValueList']); 
-            console.log("this database : ", self); 
 
-
-      console.log("About to query! value: " + search);
       db.query(params, function(err, data) {
-        console.log("finished querying!");
         if (err) {
 
           console.log("error: " + err); 
         }
         if (data.Items.length == 0) {
-          console.log("ERROR??: " + err + ".data.Items.length??: " + data.Items.length);
           callback(err, null);
         } else {
             var items = [];
-            console.log("number of items: " + data.Items.length);
-
             for (var i = 0; i < data.Items.length; i++) {
               items.push({"inx": data.Items[i].inx.N, "value": data.Items[i].value.S});
             }
