@@ -36,12 +36,22 @@
 	Da
  --> 
 
- <h1> Posts </h1>
+<!--  ID, firstname, lastname, email  --> 
+ <h1> User Information </h1>
+<!--  Search Bar   --> 
+
+<h1> Search bar is here </h1>
+<form id="newsearch" method="get" action="/restaurants">
+	<input type="text" class="tftextinput" name="q" size="21" maxlength="120"><input type="submit" value="search" class="tfbutton">
+</form>
+
+<!-- Posts --> 
+<h1> Posts </h1>
 
 <table border="1">
 <% if (posts != null) { %> 
 	<% for(var i=0; i < posts.length; i++) { %>
-		<tr>
+		<tr>	
 			<table border="1">
 			Table starts here 
 				<th>Person</th> <th>Post</th> 
@@ -71,18 +81,16 @@
 		 	</table>			 		
 		 		<!-- 	   Then create the add new post part		-->
 	 		<br>
-			<form id="addcomment" method="post">
-		    <input type="text" id="commenttext" name="text" placeholder="Add comment" required> <br><br> 
+			<form id="addcomment" method="post" action="addcomment">
+		    <input type="text" id="commenttext" name="commenttext" placeholder="Add comment" required>
+		    <input type="hidden" id="postID" name="postID" value=<%=post['key']%>>
+		    <br><br> 
 		    <input id="submitButton" type="submit" value="Add" />
 		  	</form>  			
 		</tr>	
 	<% } %>
 <% } %> 
 </table>
-
- 
-
-
 
 
  <br> 
@@ -91,17 +99,12 @@
  -->
  <br> 
  
- <h3> Add New Post  </h3>
+ <h3> Add New Status  </h3>
  
   <form id="addpost" method="post">
     <input type="text" id="formLatitude" name="latField" placeholder="Enter Latitude" required> 
     <br>
     <input type="text" id="formLongitude" name="longField" placeholder="Enter longitude" required> 
-    <br>
-     <input type="text" name="nameField" placeholder="Enter Name" required>
-    <br>
-     <input type="text" name="descField" placeholder="Enter Description" required>
-    <br>
     <p> </p>
    <br><br> 
     <input id="submitButton" type="submit" value="Add" />
@@ -110,7 +113,15 @@
 
 
   
-  <script type="text/javascript">
+ 
+  <br>
+  <a href= "/logout"> Click to Log Out </a>  
+  
+</body>
+</html>
+
+
+ <script type="text/javascript">
  	// Store the default user on login
 	var firstname = "";
 	var lastname = "";
@@ -120,6 +131,7 @@
 	// 1) Load Map Logic 	
 	var loadUser= function() {	
 		// TODO: Add users, first, last
+
 	};	
 	
 
@@ -150,20 +162,43 @@
   
   
   // Event Handling part of code -- 
+
+  // 0) Add comments 
+
+	$( "#addcomment" ).submit(function( event ) {
+	   // stop the form from submitting and refreshing
+        event.preventDefault();
+        event.stopPropagation();
+ 		
+ 		
+ 	// 2) process the form with ajax 
+ 	
+ 		 $.post('/ajaxrestaurant', formData, function(response) 
+           {
+            // Add new marker based on data returned from the server 
+            addNewMarker(JSON.parse(response))           
+           })
+           // in case there is an error 
+           .fail(function(error) { alert(error.responseJSON) });  
+    });	
+
+
+
+
   
   	// 1) Use a submit handler for the form
   
-	$( "#addcomment" ).submit(function( event ) {
+	$( "#addpost" ).submit(function( event ) {
 	   // stop the form from submitting and refreshing
         event.preventDefault();
         event.stopPropagation();
         
  		var formData = {
-	 			'text'	: $('input[name=latField]').val(), 
-	 			'owner'	: $('input[name=longField]').val(),
+	 			'text'	: $('input[name=commenttext]').val(), 
+	 			'owner'	: $('input[name=postID]').val(),
 	 			'firstname' : firstname, 
 	 			 'lastname' : lastname, 
-	 			 'postID'   : 
+	 			 'postID'   : c
  				};  		
  		
  		var commentData = JSON.stringify(formData);
@@ -177,39 +212,13 @@
            })
            // in case there is an error 
            .fail(function(error) { alert(error.responseJSON) });  
-    	});	
+    });	
 
 
 
   
   </script>
   
-  <br>
-  <a href= "/logout"> Click to Log Out </a>  
-  
-</body>
-</html>
-
-
-console.log("About to query!");
-      setTimeout(db.query(params, function(err, data) {
-        console.log("finished querying!");
-        if (err || data.Items.length == 0) {
-          console.log("ERROR??: " + err);
-          callback(err, null);
-        } else {
-            var items = [];
-            console.log("number of items: " + data.Items.length);
-
-            for (var i = 0; i < data.Items.length; i++) {
-              items.push({"inx": data.Items[i].inx.N, "value": data.Items[i].value.S});
-            }
-
-            self.cache.set(search, items);
-            console.log("about to call the db callback!");
-            callback(err, items);
-        }
-      }), 2000);
 
 
 
