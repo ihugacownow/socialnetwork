@@ -1,4 +1,6 @@
 var db = require('../models/database.js');
+var async = require('async');
+
 
 var getMain = function(req, res) {
 	res.render('main.ejs', { 
@@ -29,7 +31,7 @@ var postLogin = function(req, res) {
 				});
 			} else if (data) {			
 				// Save username in session object and redirect to restaurant page
-				req.session.username = userInput; 
+				req.session.ID = data; 
 				res.redirect('/restaurants');			
 			} else {
 				// Should not hit this case 
@@ -43,38 +45,127 @@ var postLogin = function(req, res) {
 	}
 };
 
+var test = function(req, res) {
+
+	db.getComment("0", function(err, commentData) {
+
+						console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
+			//			commentTexts.push(commentData.value.text);
+			//			commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
+						hasFinished= true;
+						
+						});
+	console.log("Finished");
+}
+
 
 var postRestaurants = function(req, res) {
 	//If the user is not logged in, redirect him to login
-	if (req.session.username == "") {
+	if (req.session.ID == "") {
 		res.render('main.ejs', {
 			message: "", 
 			footer: "Full Name: Wai Wu, SEAS Login: wuwc"
 		});
-	} 	
-
-	db.getAllRestaurants(function(data, err) {
-		if (err) {
-			res.render('logincheck.ejs', {
-				userInput: userInput, 
-				message: err, 
-				result: null
-			});
-		} else if (data) {
-			res.render('restaurants.ejs', {
-				username: req.session.username, 
-				message: null, 
-				data: data
-			});
-		} else {
-			res.render('logincheck.ejs', {
-				userInput: userInput, 
-				result: null, 
-				message: 'User name and password invalid '
-			});
+	}
+	db.getFriends("0", function(err, friends) {
+		for (var i = 0; i < friends.length; i++) {
+			console.log("friend: " + friends[i].value);
 		}
-	});
+		db.getPosts(function(err, posts) {
+			console.log("GOT POSTS?");
+			for (var i = 0; i < posts.length; i++) {
+				var commentOwners = [];
+				var commentTexts = []
+				var array = JSON.parse(posts[i].value.commentIDs);
+				for (var j = 0; j < array.length; j++) {
+					commentOwners.push(JSON.stringify(j));
+					commentTexts.push(JSON.stringify(j));
+				}
+				posts[i].commentOwners = commentOwners;
+				posts[j].commentTexts = commentTexts;
+			}
+			// for (var i = 0; i < posts.length; i++) {
+			// 	//commentTexts
+			// 	var hasFinished = false;
+			// 	var commentsOwners = []; //we change the json objects list of reply IDs their corresponding text
+			// 	var commentTexts = []; //
+//				console.log("POST i object: " + JSON.stringify(posts[i]) + "length: " + JSON.parse(posts[i].value.commentIDs).length);
+//				for (var k = 0; k < (JSON.parse(posts[i].value.commentIDs)).length; k++) {
+//					console.log("POST i object's comment IDs: " + posts[i].value.commentIDs[k]);
+//				}
+				var array = JSON.parse(posts[i].value.commentIDs);
+				// for (var j = 0; j < array.length; j++) {
+				// 	console.log("about to call db.get comment");
+				// 	db.getComment(JSON.stringify(array[j]), function(err, commentData) {
+
+									// doLotsOfStuff(array, function() {
+									// 	console.log("Done--------------------------");
+									// });
+									
+									// Wai commening out 
+									// async.forEach(array, function(elm , ){
+									// 		// do stuff 
+									// 		db.getComment("0", function(err, commentData) {
+
+				// 		console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
+				// 		commentTexts.push(commentData.value.text);
+				// 		commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
+				// 		hasFinished= true;
+						
+				// 		});
+
+				// 	while (hasFinished == false) {};
+				// 	hasFinished = false;
+				// }
+				// var hasFinished = false;
+				// while (hasFinished == false) {
+				// 	if (commentTexts.length == posts[i].value.commentIDs.length) {
+				// 		hasFinished = true;
+				// 		posts[i].commentTexts = commentTexts;
+				// 		posts[i].commentOwners = commentOwners;
+				// 	}
+			// 	}
+			// }
+			// for (var i = 0; i < posts.length; i++) {
+			// 	console.log("FULL POST INFO: " , posts[i]);
+			// }
+			res.render("restaurants.ejs", {posts: posts});
+		})
+	})
 };
+
+
+// var doLotsOfStuff = function (list, callback) {
+// 	async.forEachOf(list, function(itemInList, inner_callback){
+// 		// this is the function that executes on every item in the list
+// 		// we need to make sure inner_callback gets run exactly once per loop
+// 		// so that async knows when the item has been processed
+// 		// this is just like decrementing callsLeft in the previous example
+// 										console.log("fjor each in ", [0,1]); 
+
+// 		db.getComment("0", function(err, commentData) {
+// 							if (!err) 
+// 								console.log("comment data is: ", commentData); 
+// 							else 
+// 							 	console.log("error is: ", err); 
+
+
+// 							console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
+// 					//		commentTexts.push(commentData.value.text);
+// 			//				commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
+// 							hasFinished= true;
+// 							console.log("finished getComment callback");
+							
+// 		});		
+// 	}, function(err, commentDatas){
+// 		console.log("doing outer callback")
+// 		// this function gets called when all items get processed
+// 		// if any of them resulted in an error, we'll have an error here
+// 		// otherwise, data will be a list
+// 		callback(err, commentDatas)
+// 	})
+// }
+
 
 var getAjaxRestaurants = function(req, res) {
 
@@ -114,7 +205,6 @@ var postCreateAccount = function(req, res) {
 		var value = JSON.stringify({
 		"firstname" : firstname,
 		"lastname" : lastname,
-		"email" : email,
 		"password" : password,
 		"status" : "",
 		"affiliation" : "",
@@ -126,7 +216,7 @@ var postCreateAccount = function(req, res) {
 		"friendposts" : []
 		});
 		// Call database to add user function
-		db.putUser(value, function(data, err) {
+		db.putUser(email, value, function(data, err) {
 			if (err) {
 				res.render('signup.ejs', {message: err}); //Errors returned by KVS
 			} else {

@@ -11,7 +11,8 @@ var session = require('express-session');
 var sess = {
 		secret: 'password',
       ID: ''
-}
+};
+var async = require('async');
 app.use(session(sess));
 app.use(express.bodyParser());
 app.use(express.logger("default")); 

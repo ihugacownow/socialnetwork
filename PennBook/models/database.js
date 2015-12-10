@@ -1,12 +1,24 @@
 var keyvaluestore = require('../models/keyvaluestore.js');
-var kvs = new keyvaluestore('words');
-kvs.init(function(err, data){});
 
 var userDB = new keyvaluestore('users'); 
 userDB.init(function(err, data){}); 
 
 var restaurantDB = new keyvaluestore('restaurants'); 
 restaurantDB.init(function(err, data){}); 
+
+var postDB = new keyvaluestore('posts');
+postDB.init(function(err, data){}); 
+
+var commentDB = new keyvaluestore('comments');
+commentDB.init(function(err, data){}); 
+
+var affiliationDB = new keyvaluestore('affiliations');
+affiliationDB.init(function(err, data){}); 
+
+var friendDB = new keyvaluestore('friends');
+friendDB.init(function(err, data){}); 
+
+
 
 /* The function below is an example of a database method. Whenever you need to 
    access your database, you should define a function (myDB_addUser, myDB_getPassword, ...)
@@ -38,7 +50,7 @@ var myDB_getUser = function(username, password, route_callbck){
 			// Access json from array of json 
 			var json = JSON.parse(data[0].value); 
 			if (json.password == password) {
-				route_callbck("login succesful", null);
+				route_callbck(data[0].inx, null);
 			} else {
 				// password is not the same as input password
 				route_callbck(null, "password is invalid");
@@ -61,8 +73,8 @@ var myDB_getRest = function(route_callbck){
 }
 
 //For creating a user and adding to the table of users 
-var myDB_putUser = function(value, route_callbck){		
-	userDB.putUser(value, function(err, data) {
+var myDB_putUser = function(key, value, route_callbck){		
+	userDB.put(key, value, function(err, data) {
 		if (err) {
 			route_callbck(null, err);
 		} else {
@@ -70,7 +82,6 @@ var myDB_putUser = function(value, route_callbck){
 				"userID" : data,
 				"firstname" : value.firstname,
 				"lastname" : value.lastname,
-				"email" : value.email,
 				"password" : value.password,
 				"status" : value.status,
 				"affiliation" : value.affiliations,
@@ -84,27 +95,41 @@ var myDB_putUser = function(value, route_callbck){
 			route_callbck(data, null);
 		}
 	})
-
-	// userDB.exists(username, function(err, data) {
-	// 	if (!data) {
-	// 		// No identical username entry exists, so can add user 
-	// 		userDB.put(username, value, function (err, dataTwo) {
-	// 			if (err) {
-	// 				route_callbck(null, err);
-	// 			} else if (dataTwo == null) {
-	// 				route_callbck(null, null);
-	// 			} else {					
-	// 				route_callbck("User added in succesfully", null);						
-	// 			}
-	// 		});
-	// 	} else {
-	// 		// exist data is true means that user exists, so pass back null data
-	// 		// to indicate user was not added in successfully 
-	// 		route_callbck(null, null); 
-	// 	}
-	// });		
 }
 
+//for getting all friends of a given user
+var myDB_getFriends = function(userID, route_callbck) {
+	friendDB.get(userID, function(err, data) {
+		if (err) {
+			route_callbck(err, null);
+		} else {
+			route_callbck(null, data);
+		}
+	})
+}
+
+var myDB_getPosts = function(route_callbck) {
+	postDB.scanKeyValues(function(err, data) {
+		if (err) {
+			route_callbck(err, null);
+		} else {
+			route_callbck(null, data);
+		}
+	});
+}
+
+var myDB_getComment = function(commentID, route_callbck) {
+	console.log("started calling DB get comment?: SEARCH VALUE: " + commentID);
+	commentDB.get(commentID, function(err, data) {
+		console.log("Get comment KVS finished i guess");
+		if (err) {
+			route_callbck(err, null);
+		} else {
+			console.log("Got comment inx/values array, i think");
+			route_callbck(null, data);
+		}
+	})
+}
 //For adding restaurant data to the table of restaurants 
 var myDB_putRestaurant = function(name, value, route_callbck){	
 	restaurantDB.put(name, value, function (err, data) {
@@ -140,8 +165,15 @@ var database = {
 		getAllRestaurants: myDB_getRest, 
 		putUser: myDB_putUser,
 		putRestaurant: myDB_putRestaurant,
-		removeRestaurant: myDB_removeRestaurant
+		removeRestaurant: myDB_removeRestaurant,
+		getFriends: myDB_getFriends,
+		getPosts: myDB_getPosts,
+		getComment: myDB_getComment
 };
 
 module.exports = database;
+
+
+
+
 
