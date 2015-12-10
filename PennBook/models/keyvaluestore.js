@@ -133,8 +133,6 @@
    * Callback returns a list of objects with keys "inx" and "value"
    */
   keyvaluestore.prototype.get = function(search, callback) {
-
-    console.log("starting calling kvs get comment?: SEARCH VALUE IS: " + search);
     var self = this;
     if (self.inx === -1){
       callback("Error using table - call init first!", null)
@@ -157,7 +155,6 @@
 
       db.query(params, function(err, data) {
         if (err) {
-
           console.log("error: " + err); 
         }
         if (data.Items.length == 0) {
@@ -169,7 +166,6 @@
             }
 
             self.cache.set(search, items);
-            console.log("about to call the db callback!");
             callback(err, items);
         }
       });

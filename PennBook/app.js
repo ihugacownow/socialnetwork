@@ -11,8 +11,8 @@ var session = require('express-session');
 var sess = {
 		secret: 'password',
       ID: '',
-      username: '',
-      password: '',
+      firstname: '',
+      lastname: '',
       email: ''
 }
 

@@ -38,10 +38,11 @@ var postLogin = function(req, res) {
 				});
 			} else if (data) {			
 				// Save username in session object and redirect to restaurant page
+				var json = JSON.parse(data.value);
 				req.session.ID = data.inx;
-				req.session.firstname = data.firstname;
-				req.session.lastname = data.lastname;
-				req.session.email = userInput;
+				req.session.firstname = json.firstname;
+				req.session.lastname = json.lastname;
+				req.session.email = json.email; 
 				res.redirect('/restaurants');			
 			} else {
 				// Should not hit this case 
@@ -90,7 +91,7 @@ var postTestRestaurants = function(req, res) {
 		
 
 			res.render('restaurants.ejs', {
-				username: "0", 
+				session: req.session, 
 				message: null, 
 				posts: posts
 			});		
@@ -100,12 +101,7 @@ var test = function(req, res) {
 
 	db.getComment("0", function(err, commentData) {
 
-						console.log("finished getting a comment? commentData: " + JSON.stringify(commentData));
-			//			commentTexts.push(commentData.value.text);
-			//			commentOwners.push(commentData.value.firstname + " " + commentData.value.lastName);
-						hasFinished= true;
-						
-						});
+	});
 	console.log("Finished");
 }
 
@@ -123,8 +119,9 @@ var postRestaurants = function(req, res) {
 			console.log("error:", err);
 		}
 		db.getPosts(function(err, posts) {
+			var postsString = []
 			doPosts(postsString, posts, function(err, postsData) {
-				res.render('restaurants.ejs', {username : req.session.ID, message : "", posts : postsData});
+				res.render('restaurants.ejs', {session : req.session, message : "", posts : postsData});
 			});	
 		});
 	});
@@ -142,25 +139,23 @@ var doComments = function (post, commentIDs, callback) {
 		db.getComment(JSON.stringify(commentID), function(err, commentData) {
 			if (err) {
 				console.log("error is: ", err);
-			 	inner_callback();
+			 	inner_callback(err);
 			} else {
 				var nameadd = (JSON.parse(commentData[0]['value']))['firstname'] + " " +
 							  (JSON.parse(commentData[0]['value']))['lastname'];
 				var comtext = (JSON.parse(commentData[0]['value']))['text'];
 				post.value.commentOwners.push(nameadd);
 				post.value.commentTexts.push(comtext);
-			 }
-			inner_callback();	
+			}
+			inner_callback();
 		});		
 	}, function(err){
-		console.log("doing outer callback for comments")
 		// this function gets called when all items get processed
 		// if any of them resulted in an error, we'll have an error here
 		// otherwise, data will be a list
 		if (err) {
 			console.log("problem with comment callback: ", err);
 		}
-		console.log("POST: ", post);
 		callback(post);
 	})
 }
@@ -168,19 +163,16 @@ var doComments = function (post, commentIDs, callback) {
 var doPosts = function (arr, posts, callback) {
 	async.forEachOf(posts, function(post, key, inner_callback){
 		var commentIDlist = JSON.parse(post.value.commentIDs);
-				doComments(post, commentIDlist, function(err, commentDatas) {
+				doComments(post, commentIDlist, function(err) {
 					inner_callback();
 				});
-				
 	}, function(err){
 		if (err) {
 			console.log("problem with post callback:", err);
 		}
-		console.log("doing outer callback for posts")
 		// this function gets called when all items get processed
 		// if any of them resulted in an error, we'll have an error here
 		// otherwise, data will be a list
-		console.log("called back post datas: ", posts);
 		callback(err, posts)
 	})
 }
@@ -325,10 +317,10 @@ var postDeleteRestaurant = function(req, res) {
 
 var getLogout = function(req, res) {
 	// Set Session user to empty 
-	req.session.ID = '';
+	req.session.ID = ''; 
 	req.session.firstname = '';
 	req.session.lastname = '';
-	req.session.email = ''; 
+	req.session.email = '';
 	// Redirect to main page 
 	res.redirect('/');
 };
