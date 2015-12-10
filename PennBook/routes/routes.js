@@ -121,16 +121,18 @@ var postRestaurants = function(req, res) {
 		}
 		db.getPosts(function(err, posts) {
 			console.log("GOT POSTS?");
+			var postString = [];
 			for (var i = 0; i < posts.length; i++) {
-				var commentOwners = [];
-				var commentTexts = []
+				posts[i].value.commentOwners = [];
+				posts[i].value.commentTexts = [];
 				var array = JSON.parse(posts[i].value.commentIDs);
+				console.log("array: ", array.length);
 				for (var j = 0; j < array.length; j++) {
-					commentOwners.push(JSON.stringify(j));
-					commentTexts.push(JSON.stringify(j));
+					posts[i].value.commentOwners.push(JSON.stringify(j));
+					posts[i].value.commentTexts.push(JSON.stringify(j));
 				}
-				posts[i].commentOwners = commentOwners;
-				posts[j].commentTexts = commentTexts;
+				console.log("post i : ", posts[i]);
+				postString.push(JSON.stringify(posts[i]));
 			}
 			// for (var i = 0; i < posts.length; i++) {
 			// 	//commentTexts
@@ -141,7 +143,7 @@ var postRestaurants = function(req, res) {
 //				for (var k = 0; k < (JSON.parse(posts[i].value.commentIDs)).length; k++) {
 //					console.log("POST i object's comment IDs: " + posts[i].value.commentIDs[k]);
 //				}
-				var array = JSON.parse(posts[i].value.commentIDs);
+//				var array = JSON.parse(posts[i].value.commentIDs);
 				// for (var j = 0; j < array.length; j++) {
 				// 	console.log("about to call db.get comment");
 				// 	db.getComment(JSON.stringify(array[j]), function(err, commentData) {
@@ -177,7 +179,46 @@ var postRestaurants = function(req, res) {
 			// for (var i = 0; i < posts.length; i++) {
 			// 	console.log("FULL POST INFO: " , posts[i]);
 			// }
-			res.render("restaurants.ejs", {posts: posts});
+
+			postsTwo = [JSON.stringify(
+					{'key' : "0", 
+				 	'inx' : "0",
+				  	'value' : {"owner1" 	: "Brian", 
+				  				 'owner2'	: "Wai", 
+				  				 'text'		: "yoooooo my post is this", 
+				  				 'commentTexts' : ["comment 1", "comment 2"],				  				 
+				  				 'commentOwners' : ["Brian", "Wai Commenter"]
+				  				}				  				
+				  			
+				  	}), 
+
+			JSON.stringify(
+					{'key' : "0", 
+				 	'inx' : "0",
+				  	'value' : {"owner1" 	: "Brian", 
+				  				 'owner2'	: "Wai", 
+				  				 'text'		: "yoooooo my post is this", 
+				  				 'commentTexts' : ["comment 1", "comment 2"],
+				  				 'commentOwners' : ["Brian", "Wai Commenter"]
+				  				}				  				
+				  			
+				  	}), 
+
+			];
+
+
+
+			console.log("Post is: ", posts
+			);
+
+			console.log("PostTwo is: ", postsTwo
+			);
+
+			res.render("restaurants.ejs", {
+				username: req.session.ID,
+				message: "", 
+				posts: postString});
+
 		})
 	})
 };
