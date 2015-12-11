@@ -482,6 +482,8 @@ var getPostsAjax = function(req, res) {
 						filteredPosts.push(postsData[i]);
 					}
 				}
+				console.log("-------------- BACKEND: Sending posts data from getPostsAjax: ",
+				  {session : req.session, message : "", posts : postsData});
 				res.send(JSON.stringify({session : req.session, message : "", posts : postsData}));
 			});	
 		});

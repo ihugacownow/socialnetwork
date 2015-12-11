@@ -156,10 +156,12 @@ var refreshPage = function() {
   console.log("Refreshing tehe page");
 	$.get('/getPostsAjax', function(res) {
 		// Reset the table first 
-		console.log("Response from server: ", response);
+		console.log("FRONTEND: Response from server: ", res);
 		postTable.html(''); // search specifics later 
     var responseJSON = JSON.parse(res); 
     var response = responseJSON.posts; 
+    		console.log("FRONTEND: parsed response to send to loadposts is: ", response);
+
     console.log("Prased response is: ", response);
 		loadPosts(response); 
 	});
@@ -197,6 +199,8 @@ function createPostElement(post) {
 //      console.log("comment Owners ",post['value']['commentOwners'][i]);
 
 function createCommentSection(post) {
+	console.log("Create comment section called");
+	console.log("Post is ", post);
     var elem = $('<div/>', {
         class: 'col-md-5'
     });
