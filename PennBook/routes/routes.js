@@ -44,7 +44,7 @@ var postLogin = function(req, res) {
 				req.session.ID = data.inx;
 				req.session.firstname = json.firstname;
 				req.session.lastname = json.lastname;
-				req.session.email = json.email; 
+				req.session.email = userInput; 
 				res.redirect('/restaurants');			
 			} else {
 				// Should not hit this case 
@@ -97,8 +97,6 @@ var postTestRestaurants = function(req, res) {
 				message: null, 
 				posts: posts
 			});		
-
-			// res.send(posts);
 };
 
 var test = function(req, res) {
@@ -128,12 +126,15 @@ var postRestaurants = function(req, res) {
 			console.log("error:", err);
 		}
 		db.getPosts(function(err, posts) {
+			console.log("posts array that db gave us: ", posts);
 			var postsString = []
 			doPosts(postsString, posts, function(err, postsData) {
+				console.log("post data from doPostsstts data , " , postsData);
 				var filteredPosts = []
 				for (var i = 0; i < postsData.length; i++) {
 					if (contains(postsData[i].value.owner1, friends) !== -1 ||
 						contains(postsData[i].value.owner2, friends) !== -1) {
+						console.log("WE HAVE A VIEWABLE POST");
 						filteredPosts.push(postsData[i]);
 					}
 
@@ -156,13 +157,13 @@ var contains = function(value, arr) {
 }
 
 var doComments = function (post, commentIDs, callback) {
+	var arr1 = []
+	var arr2 = []
 	async.forEachOf(commentIDs, function(commentID, key, inner_callback){
 		// this is the function that executes on every item in the list
 		// we need to make sure inner_callback gets run exactly once per loop
 		// so that async knows when the item has been processed
 		// this is just like decrementing callsLeft in the previous example
-		post.value.commentOwners = [];
-		post.value.commentTexts = [];
 		db.getComment(JSON.stringify(commentID), function(err, commentData) {
 			if (err) {
 				console.log("error is: ", err);
@@ -170,13 +171,17 @@ var doComments = function (post, commentIDs, callback) {
 			} else {
 				var nameadd = (JSON.parse(commentData[0]['value']))['firstname'] + " " +
 							  (JSON.parse(commentData[0]['value']))['lastname'];
-				var comtext = (JSON.parse(commentData[0]['value']))['text'];
-				post.value.commentOwners.push(nameadd);
-				post.value.commentTexts.push(comtext);
+				var context = (JSON.parse(commentData[0]['value']))['text'];
+				arr1.push(nameadd);
+				arr2.push(context);
 			}
 			inner_callback();
 		});		
 	}, function(err){
+		console.log("arr1: ", arr1);
+		post.value.commentOwners = arr1;
+		post.value.commentTexts = arr2;
+		console.log("current post's commentOwners: ", post.value.commentOwners);
 		// this function gets called when all items get processed
 		// if any of them resulted in an error, we'll have an error here
 		// otherwise, data will be a list
@@ -189,9 +194,10 @@ var doComments = function (post, commentIDs, callback) {
 
 var doPosts = function (arr, posts, callback) {
 	async.forEachOf(posts, function(post, key, inner_callback){
-		var commentIDlist = JSON.parse(post.value.commentIDs);
+
+		var commentIDlist = post.value.commentIDs;
 		console.log("commentIDlist: ", post.value.commentIDs);
-				doComments(post, commentIDlist, function(err) {
+				doComments(post, JSON.parse(commentIDlist), function(err) {
 					inner_callback();
 				});
 	}, function(err){
@@ -345,31 +351,13 @@ var postDeleteRestaurant = function(req, res) {
 var postAddComment = function(req, res) {
 	var text = req.body.text;
 	var postID = req.body.postID;
-	console.log("about to call db add comment!"); 
-	console.log("Sent data is postID: ", postID); 
-		console.log("Sent data is owner: ", text); 
-
-
-	console.log("req session firstname lastname", "Wai", "Wu");
-	// TODO: Fix the req.sessions, they are all not registering the names, etc 
-		//req.session.firstname, req.session.lastname);
-
-
-
-	// db.addComment("Wai", "Wu", "0", postID, text, function(err, data) {
-	// 	console.log("finished calling db add comment!");
-	// 	// TODO: Return the comment object containing, because I need the inx before populating the front end 
-				
-	// });		
-
-	res.send(JSON.stringify({
-					"key" : 2, 
-					"values" : {
-						"text" : text,
-						"owner" : "Wai Wu",
-						"postID" : postID
-					}
-				}));					
+	var firstname = req.body.firstname;
+	var lastname = req.body.lastname;
+	var userID = req.body.userID;
+	var postInx = req.body.postInx;
+	db.addComment(postInx, firstname, lastname, userID, postID, text, function(err, data) {
+		res.send(JSON.stringify(data));					
+	});					
 }
 
 //load a user'sprofile (when user clicks on their "profile" button OR they search for another user)
@@ -425,6 +413,7 @@ var postProfile = function(req, res) {
 }
 
 //search for a user (sends front-end a list of users + their webpages)
+//returns all the userIDs of any user's who match the given first and last name
 var postSearch = function(req, res) {
 	var firstname = req.body.firstname;
 	var lastname = req.body.lastname;
@@ -446,6 +435,7 @@ var postSearch = function(req, res) {
 	});
 }
 
+//upon "reading" their notifications, we will empty the user's notification list
  var getNotifications = function(req, res) {
 	//get the notifications
 	db.lookupUser(req.session.email, req.session.password, function(userData, err) {
@@ -463,6 +453,64 @@ var postSearch = function(req, res) {
 				}
 			})
 		}
+	})
+}
+
+//used to refresh a newsfeed without refreshin the entire page
+var getPostsAjax = function(req, res) {
+	db.getFriends(req.session.ID, function(err, friends) {
+		req.session.friends = friends; //set user's friend list
+		var friendsArr = []; //contains the userIDs of all the friends of given user
+		for (var i = 0; i < friends.length; i++) {
+			friendsArr.push(friends[i].value);
+		}
+		if (err) {
+			console.log("error:", err);
+		}
+		//get all the posts
+		db.getPosts(function(err, posts) {
+			console.log("posts array that db gave us: ", posts);
+			var postsString = []
+			doPosts(postsString, posts, function(err, postsData) {
+				console.log("post data from doP")
+				var filteredPosts = []
+				//only include posts such that one of the owners is friends with the user
+				for (var i = 0; i < postsData.length; i++) {
+					if (contains(postsData[i].value.owner1, friends) !== -1 ||
+						contains(postsData[i].value.owner2, friends) !== -1) {
+						console.log("WE HAVE A VIEWABLE POST");
+						filteredPosts.push(postsData[i]);
+					}
+				}
+				res.send(JSON.stringify({session : req.session, message : "", posts : postsData}));
+			});	
+		});
+	});
+}
+
+//function for adding posts to our post table (when posting on a user's wall)
+var postAddPost = function(req, res) {
+	var owner1 = req.body.owner1;
+	var owner2 = req.body.owner2;
+	var text = req.body.text;
+	db.addPost(owner1, owner2, text, function(err, data) {
+		if (err) {
+			console.log("error adding post: ", err);
+		} else {
+			//send back the ID of the post so front-end can use it to make a unique div
+			res.send({"postID": data});
+		}
+	})
+
+}
+
+//function for adding a friend (when user clicks on someone else's friend request button)
+var postAddFriend = function(req, res) {
+	var user1 = req.session.ID; //person doing the friending
+	var user2 = req.body.user2; //person being friended
+	//add this tuple to the friends data table
+	db.addFriend(user1, user2, function(err, data) {
+
 	})
 }
 
@@ -509,7 +557,10 @@ var routes = {
 		post_addcomment: postAddComment,
 		post_profile: postProfile,
 		post_search: postSearch,
-		get_notifications: getNotifications
+		get_notifications: getNotifications,
+		get_postsAjax: getPostsAjax,
+		post_addpost: postAddPost,
+		post_addfriend: postAddFriend
 };
 
 module.exports = routes;

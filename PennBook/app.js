@@ -44,6 +44,7 @@ app.use(express.logger("default"));
    POST is often used when submitting web forms ('method="post"'). */
 
 app.get('/', routes.get_main);
+app.get('/getPostsAjax', routes.get_postsAjax);
 
 app.get('/profiles', function(req, res) {
 
@@ -53,59 +54,61 @@ app.get('/profiles', function(req, res) {
    });
 });
 
-// Start of testing stuff -------------
-app.get('/getProfile', function(req, res) {
-   posts = JSON.stringify({"key" : "wuwc@sas.upenn.edu", 
-                              "values" : {
-                                  "firstname" : "Wai",
-                                  "lastname" : "Wu",
-                                  "password" : "password2",
-                                  "status" : "Wai's status",
-                                  "affiliation" : "University of Pennsylvania",
-                                  "interests" : ["computer science", "Nets 212"],
-                                  "birthday" : "April 20th 1996",
-                                  "online" : "false",
-                                  "posts" : [],
-                                  "comments" : [],
-                                  "friendposts" : [0],
-                                  "notifications" : []
-                               }});
-   console.log("sending here"); 
-   res.send(posts);
-});
+// // Start of testing stuff -------------
+// app.get('/getProfile', function(req, res) {
+//    posts = JSON.stringify({"key" : "wuwc@sas.upenn.edu", 
+//                               "values" : {
+//                                   "firstname" : "Wai",
+//                                   "lastname" : "Wu",
+//                                   "password" : "password2",
+//                                   "status" : "Wai's status",
+//                                   "affiliation" : "University of Pennsylvania",
+//                                   "interests" : ["computer science", "Nets 212"],
+//                                   "birthday" : "April 20th 1996",
+//                                   "online" : "false",
+//                                   "posts" : [],
+//                                   "comments" : [],
+//                                   "friendposts" : [0],
+//                                   "notifications" : []
+//                                }});
+//    console.log("sending here"); 
+//    res.send(posts);
+// });
 
 // TODO: Test for load all posts at the start of the restaurants page 
-app.get('/getPosts', function(req, res) {
-   posts = JSON.stringify([
-               {'key' : "0", 
-               'inx' : "0",
-               'value' : {"owner1"  : "Brian", 
-                         'owner2'   : "Wai", 
-                         'text'     : "yoooooo my post is this", 
-                         'commentTexts' : ["comment 1", "comment 2"],                         
-                         'commentOwners' : ["Brian", "Wai Commenter"],
-                         'commentIDs'    : ["1","2"]
-                        }                       
+
+
+// app.get('/getPosts', function(req, res) {
+//    posts = JSON.stringify([
+//                {'key' : "0", 
+//                'inx' : "0",
+//                'value' : {"owner1"  : "Brian", 
+//                          'owner2'   : "Wai", 
+//                          'text'     : "yoooooo my post is this", 
+//                          'commentTexts' : ["comment 1", "comment 2"],                         
+//                          'commentOwners' : ["Brian", "Wai Commenter"],
+//                          'commentIDs'    : ["1","2"]
+//                         }                       
                      
-               }, 
+//                }, 
 
          
-               {'key' : "0", 
-               'inx' : "0",
-               'value' : {"owner1"  : "Brian", 
-                         'owner2'   : "Wai", 
-                         'text'     : "yoooooo my post is this", 
-                         'commentTexts' : ["comment 1", "comment 2"],
-                         'commentOwners' : ["Brian", "Wai Commenter"],
-                         'commentIDs'    : ["1","2"]
-                        }                       
+//                {'key' : "0", 
+//                'inx' : "0",
+//                'value' : {"owner1"  : "Brian", 
+//                          'owner2'   : "Wai", 
+//                          'text'     : "yoooooo my post is this", 
+//                          'commentTexts' : ["comment 1", "comment 2"],
+//                          'commentOwners' : ["Brian", "Wai Commenter"],
+//                          'commentIDs'    : ["1","2"]
+//                         }                       
                      
-               }, 
+//                }, 
 
-         ]);
-   console.log("sending here"); 
-   res.send(posts);
-});
+//          ]);
+//    console.log("sending here"); 
+//    res.send(posts);
+// });
 // app.get('/', routes.test);
 app.get('/users', function(req, res) {
    // req.params 
@@ -122,27 +125,27 @@ app.get('/profile', function(req, res) {
       message: "", 
       footer: "Full Name: Wai Wu, SEAS Login: wuwc"
    });
-
-
 })
 
 app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);
-app.get('/restaurants', routes.post_testRestaurants);
-// app.get('/restaurants', routes.post_restaurants);
+//app.get('/restaurants', routes.post_testRestaurants);
+app.get('/restaurants', routes.post_restaurants);
 
 app.post('/addrestaurant', routes.post_addRestaurant);
 app.get('/logout', routes.get_logout);
 app.post('/ajaxrestaurant', routes.post_ajaxRestaurant);
 app.get('/getajaxrestaurants', routes.get_ajaxRestaurants); 
 app.post('/delete', routes.post_deleteRestaurant);
-app.post('/restaurants/:firstname:lastname:ID', routes.post_profile);
+app.post('/restaurants/:ID', routes.post_profile);
 app.post('/addcomment', routes.post_addcomment);
 app.post('/search', routes.post_search);
 app.get('/notifications', routes.get_notifications);
 app.use('/css', express.static('views/css'));
 app.use('/js', express.static('views/js'));
+app.post('/addpost', routes.post_addpost);
+app.post('/addfriend', routes.post_addfriend);
 // app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */

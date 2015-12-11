@@ -1,0 +1,44 @@
+var posts = [
+           {'key' : "0", 
+           'inx' : "0",
+           'value' : {"owner1"  : "Brian", 
+                     'owner2'   : "Wai", 
+                     'text'     : "yoooooo my post is this", 
+                     'commentTexts' : ["comment 1", "comment 2"],                         
+                     'commentOwners' : ["Brian", "Wai Commenter"],
+                     'commentIDs'    : ["1","2"]
+                    }                       
+                 
+           }, 
+
+     
+           {'key' : "0", 
+           'inx' : "0",
+           'value' : {"owner1"  : "Brian", 
+                     'owner2'   : "Wai", 
+                     'text'     : "yoooooo my post is this", 
+                     'commentTexts' : ["comment 1", "comment 2"],
+                     'commentOwners' : ["Brian", "Wai Commenter"],
+                     'commentIDs'    : ["1","2"]
+                    }                       
+                 
+           }, 
+
+     ];
+
+ $.get('/getPosts', function(response) {
+        // Reset the table first 
+        console.log("Response from server: ", response);
+        
+
+        postTable.html(''); // search specifics later 
+        
+        loadPosts(posts);
+        //TODO: Testing 
+        // loadPosts(JSON.parse(response));  
+    });
+    console.log("post table is: ", postTable);
+
+
+
+    check createcommentelement

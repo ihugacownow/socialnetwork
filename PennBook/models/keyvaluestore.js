@@ -153,7 +153,10 @@
           AttributesToGet: [ 'inx', 'value' ]
       };
 
+      console.log("calling GET with params: ",params);
+      console.log("our SEARCH term is: ", search);
       db.query(params, function(err, data) {
+        console.log("finished GET request, giving us data: ", data);
         if (err) {
           console.log("error: " + err); 
         }
@@ -161,9 +164,11 @@
           callback(err, null);
         } else {
             var items = [];
+            console.log("NUMBER OF ITEMS: ", data.Items.length);
             for (var i = 0; i < data.Items.length; i++) {
               items.push({"inx": data.Items[i].inx.N, "value": data.Items[i].value.S});
             }
+            console.log("ITEMS: ", items);
 
             self.cache.set(search, items);
             callback(err, items);
@@ -297,12 +302,12 @@
           TableName: self.tableName,
           ReturnValues: 'NONE'
       };
-
+      var theInx = self.inx;
       db.putItem(params, function(err, data){
         if (err)
           callback(err)
         else
-          callback(null, self.inx)
+          callback(null, theInx);
       });
       self.inx++;
     }   
@@ -375,12 +380,16 @@
           TableName: self.tableName,
           ReturnValues: 'NONE'
       };
-
+      console.log("------------");
+      console.log("putting item with the following params into the table: ", params);
+      var theInx = self.inx;
       db.putItem(params, function(err, data){
+        console.log("err and data returned: ", err, data);
+        console.log("------------");
         if (err)
           callback(err)
         else
-          callback(null, self.inx)
+          callback(null, theInx);
       });
       self.inx++;
     }   
@@ -413,48 +422,21 @@
         TableName: self.tableName,
         ReturnValues: 'ALL_OLD'
     };
-
+    console.log("deleting the thing with params: ", params);
     db.deleteItem(params, function(err, data){
       if (err || !data.Attributes){
+        console.log("error and data from aws delete function: ", err, data);
         if (!err)
           err = "No such item " + keyword + " " + inx
         callback(err, null);
       }
       else{
+        console.log("DATA from aws delete function: ", data);
         callback(null, data.Attributes.value.S);
       }
     });
   };
 
-  /**
-   * Gets all of the keys by performing a scan.
-   * Keys will always be treated as strings.
-   * 
-   * Callback with a list of objects with keys "key", "inx"
-   */
-  keyvaluestore.prototype.scanKeys = function(callback) {
-    var self = this;
-    
-    var params = {
-        TableName: self.tableName,
-        AttributesToGet: ['keyword', 'inx']
-    };
-
-    db.scan(params, function(err, data) {
-      var values = [];
-      
-      if (!err) {
-        for (var i = 0; i < data.Count; i++) {
-          values.push({
-            "key": data.Items[i].keyword['S'],
-            "inx": data.Items[i].inx['N']
-          });
-        }
-      }
-      
-      callback(err, values);
-    });
-  };
 
   
   /**

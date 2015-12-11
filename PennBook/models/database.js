@@ -95,26 +95,7 @@ var myDB_putUser = function(key, value, route_callbck){
 			})
 			route_callbck(data, null);
 		}
-	})
-
-	// userDB.exists(username, function(err, data) {
-	// 	if (!data) {
-	// 		// No identical username entry exists, so can add user 
-	// 		userDB.put(username, value, function (err, dataTwo) {
-	// 			if (err) {
-	// 				route_callbck(null, err);
-	// 			} else if (dataTwo == null) {
-	// 				route_callbck(null, null);
-	// 			} else {					
-	// 				route_callbck("User added in succesfully", null);						
-	// 			}
-	// 		});
-	// 	} else {
-	// 		// exist data is true means that user exists, so pass back null data
-	// 		// to indicate user was not added in successfully 
-	// 		route_callbck(null, null); 
-	// 	}
-	// });		
+	})	
 }
 
 //for getting all friends of a given user
@@ -123,13 +104,16 @@ var myDB_getFriends = function(userID, route_callbck) {
 		if (err) {
 			route_callbck(err, null);
 		} else {
+			console.log("all friends: ", data);
 			route_callbck(null, data);
 		}
 	})
 }
 
+//function for getting all posts
 var myDB_getPosts = function(route_callbck) {
 	postDB.scanKeyValues(function(err, data) {
+		console.log("posts array that kvs gave us: ", data);
 		if (err) {
 			route_callbck(err, null);
 		} else {
@@ -138,6 +122,7 @@ var myDB_getPosts = function(route_callbck) {
 	});
 }
 
+//function for getting a comment
 var myDB_getComment = function(commentID, route_callbck) {
 	commentDB.get(commentID, function(err, data) {
 		if (err) {
@@ -147,6 +132,7 @@ var myDB_getComment = function(commentID, route_callbck) {
 		}
 	})
 }
+
 //For adding restaurant data to the table of restaurants 
 var myDB_putRestaurant = function(name, value, route_callbck){	
 	restaurantDB.put(name, value, function (err, data) {
@@ -172,35 +158,34 @@ var myDB_removeRestaurant = function(keyword, inx, route_callbck) {
 	});
 }
 
-var myDB_addComment = function(firstname, lastname, userID, postID, text, route_callbck) {
+//adds a comment to our comment table:
+// 1) add the comment
+// 2) remove the post containg the comment from our posts table (it's timestamp is incorrect)
+// 3) take the JSON object for that removed post, add the new comment's ID to it's commentIDs array
+// 4) re-add this post back our post table (thereby updating it's timestamp)
+var myDB_addComment = function(postInx, firstname, lastname, userID, postID, text, route_callbck) {
 	//add the comment to our comments table
 	var commentValue = {"postID": postID, "owner": userID, "text": text, "firstname": firstname, "lastname": lastname};
-	console.log("about to call kvs put for the comment!");
-	console.log("comment we're adding is: ", commentValue);
-	//commentDB.put2(commentValue, function(err, data) {
-	//	console.log("finished kvs put for comment, about to kvs remove the post!");
-		// //once comment has been added, remove the current post, update it, and re-add to post table
-		// postDB.remove(postID, postID, function(err, data) {
-		// 	console.log("finished kvs remove for post, about to kvs put the new post!");
-		// 	// console.log("old post's comment id list: ", data.commentIDs);
-		// 	data.commentIDs.push(commentID);
-		// 	// console.log("new post's comment id list: ", data.commentIDs);
-		// 	postDB.put2(data, function(err, data) {
-		// 		console.log("finished putting new post in post list!");
-		// 		if (err) {
-		// 			console.log("error re-adding post to table: " + err);
-		// 			route_callbck(err, null);
-		// 		} else {
-		// 			route_callbck(null, data);
-		// 		}
-		// 	})
-		// });
-//	})
-	console.log("returned from db call");
-
-	// TODO: return response containing: 
+	commentDB.put2(JSON.stringify(commentValue), function(err, commentData) {
+		//once comment has been added, remove the current post, update it, and re-add to post table
+		postDB.remove(postID, postInx, function(err, postData) {
+			var parsedData = JSON.parse(postData);
+			var arr = JSON.parse(parsedData.commentIDs);
+			arr.push(commentData);
+			parsedData.commentIDs = JSON.stringify(arr);
+			postDB.put(postID, JSON.stringify(parsedData), function(err, data) {
+				if (err) {
+					console.log("error re-adding post to table: " + err);
+					route_callbck(err, null);
+				} else {
+					route_callbck(null, data);
+				}
+			})
+		});
+	})
 }
 
+//gets all the users in our users table
 var myDB_getUsers = function(route_callbck) {
 	userDB.scanKeyValues(function(err, data) {
 		if (err) {
@@ -211,6 +196,7 @@ var myDB_getUsers = function(route_callbck) {
 	})
 }
 
+//function for getting all the friends in our friends table
 var myDB_allFriends = function(route_callbck) {
 	friendDB.scanKeyValues(function(err, data) {
 		if (err) {
@@ -227,6 +213,30 @@ var myDB_updateNotifications = function(key, inx, attributes, route_callbck) {
 			console.log("could not update user's notifications part of table!" + err);
 		} else {
 			route_callbck(data, null);
+		}
+	})
+}
+
+//function for adding a post to our post database
+var myDB_addPost = function(owner1, owner2, text, route_callbck) {
+	//add the post to our post database, return the postID
+	var value = {"owner1": owner1, "owner2": owner2, "text": text, "commentIDs": []};
+	postDB.put2(value, function(err, data) {
+		if (err) {
+			console.log("could not add post to database (KVS function failed): ", err);
+		} else {
+			route_callbck(data);
+		}
+	})
+}
+
+//adds a friendship for these two users
+var myDB_addFriend = function(user1, user2, route_callbck) {
+	friendDB.put(user1, user2, function(err, data) {
+		if (err) {
+			console.log("couldn't add friend to friend table!: ", err);
+		} else {
+			route_callbck(data);
 		}
 	})
 }
@@ -248,7 +258,9 @@ var database = {
 		addComment: myDB_addComment,
 		getUsers: myDB_getUsers,
 		allFriends: myDB_allFriends,
-		updateNotifications: myDB_updateNotifications
+		updateNotifications: myDB_updateNotifications,
+		addPost: myDB_addPost,
+		addFriend: myDB_addFriend
 };
 
 module.exports = database;

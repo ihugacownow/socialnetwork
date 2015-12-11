@@ -9,6 +9,34 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+
+<!--  Merge 1 <!DOCTYPE html>
+<html>
+  <head><title>Map</title> -->
+  <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    body {
+      padding-top: 40px;
+	  padding-bottom: 40px;
+ 	  background-color: white;
+         }
+    .login-box {
+    max-width: 330px;
+    margin: 0 auto;
+   		}
+    .login-box .form-control {
+      margin-bottom: 10px;
+    }
+  </style>
+ 
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+  </script>
+
+  <script type="text/javascript"> 
+  </script>
+
     <title>NewsFeed</title>
 
     <!-- Bootstrap Core CSS -->
@@ -16,32 +44,38 @@
 
     <!-- Custom CSS -->
     <link href="css/1-col-portfolio.css" rel="stylesheet">
-
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-  <!--  This is for the autocomplete widget 
- -->
+   <script>
+
+     // initialize variables so that they can be passed to backend during the rendering 
+  var postTable; 
+  var firstname;
+  var lastname; 
+  var email; 
+  var userID; 
+
+  console.log("session is: asdfdsfsdafdsfsafdfadsfdsfsafsfs");
+  var c = '<%- JSON.stringify(session) %>';
+  console.log("session id is, ", JSON.parse(c));
+  var cc = JSON.parse(c);
+  firstname = cc.firstname;
+  lastname = cc.lastname;
+  email = cc.email;
+  userID = cc.ID;
+
+  console.log("loaded first name is: ", firstname);
 
 
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    <script>
-
-    var postTable; 
-    var firstname;
-    var lastname; 
+  	// Other Variables for functionality 
     var tagButton; 
     var namesearch; 
     var allUsers;
    
 
+    //TODO: Hard codeed 
     $(function(){
         var availableTags = [
       "Brian sucks :((",
@@ -78,9 +112,7 @@
     });
 
 
-    
-
-   
+     
 
     postTable = $('#post-table');
     tagButton = $('#tags');
@@ -120,46 +152,18 @@ var setUpSearchBar = function(elem) {
      }));   
 }
 
-var refreshPage = function() {
-
-    $.get('/getPosts', function(response) {
-        // Reset the table first 
-        console.log("Response from server: ", response);
-        var posts = [
-           {'key' : "0", 
-           'inx' : "0",
-           'value' : {"owner1"  : "Brian", 
-                     'owner2'   : "Wai", 
-                     'text'     : "yoooooo my post is this", 
-                     'commentTexts' : ["comment 1", "comment 2"],                         
-                     'commentOwners' : ["Brian", "Wai Commenter"],
-                     'commentIDs'    : ["1","2"]
-                    }                       
-                 
-           }, 
-
-     
-           {'key' : "0", 
-           'inx' : "0",
-           'value' : {"owner1"  : "Brian", 
-                     'owner2'   : "Wai", 
-                     'text'     : "yoooooo my post is this", 
-                     'commentTexts' : ["comment 1", "comment 2"],
-                     'commentOwners' : ["Brian", "Wai Commenter"],
-                     'commentIDs'    : ["1","2"]
-                    }                       
-                 
-           }, 
-
-     ];
-
-        postTable.html(''); // search specifics later 
-        
-        loadPosts(posts);
-        //TODO: Testing 
-        // loadPosts(JSON.parse(response));  
-    });
-    console.log("post table is: ", postTable);
+var refreshPage = function() {   
+  console.log("Refreshing tehe page");
+	$.get('/getPostsAjax', function(res) {
+		// Reset the table first 
+		console.log("Response from server: ", response);
+		postTable.html(''); // search specifics later 
+    var responseJSON = JSON.parse(res); 
+    var response = responseJSON.posts; 
+    console.log("Prased response is: ", response);
+		loadPosts(response); 
+	});
+	console.log("post table is: ", postTable);
 }
 
 
@@ -180,7 +184,7 @@ function createPostElement(post) {
 
     elem
         .append(createPostContent(post))
-        .append(createCommentSection(post));
+        .append(createCommentButton(post.key, post.inx));
   console.log("returning post element: ", elem);
 
   return elem;
@@ -198,7 +202,7 @@ function createCommentSection(post) {
     });
     for (var i = 0; i < post['value']['commentTexts'].length; i++) {    
         elem.append(createCommentElement
-            (post['key'],
+            (post['key'], post['inx'],
             post['value']['commentIDs'][i], 
             post['value']['commentTexts'][i],
             post['value']['commentOwners'][i]));
@@ -206,6 +210,7 @@ function createCommentSection(post) {
     elem.append(createCommentButton(post.key));
     return elem;
 }
+
 
 function createPostContent(post) {
     var elem = $('<div/>');
@@ -219,24 +224,14 @@ function createPostContent(post) {
     ); 
   
   console.log("post is: ", post.value);
-  
-  // Appending comments 
-  /*  for (var i = 0; i < post['value']['commentTexts'].length; i++) {    
-        elem.append(createCommentElement
-            (post['key'],
-            post['value']['commentIDs'][i], 
-            post['value']['commentTexts'][i],
-            post['value']['commentOwners'][i]));
-    } 
-  
-    console.log("returning post content with comments");*/
 
   return elem;
 }
 
 
-function createCommentButton(id) {
+function createCommentButton(id, postInx) {
   // Assign post id as id of the comment box 
+  var commentText = $('#comment-box-' + id).val(); 
   var elem = $('<div/>', {
         id: id, 
   });
@@ -257,49 +252,48 @@ function createCommentButton(id) {
       class: 'btn btn-primary',
       // Sends a post first 
       click: function() {     
-            // Format json object   
-            var formData = {
-                'text'  : $('#comment-box-' + id).val(), 
-                'postID'    : id,
-                'firstname' : firstname, 
-                'lastname' : lastname,  
-                // note no comment id here, it is generated backend 
-            };
-            // var postingData = JSON.stringify(formData);  
-
-            $.post('/addcomment', formData, function(response) {
-                    // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
-                    var jsonRes = JSON.parse(response);
-                    console.log("Json response is: ", jsonRes);
-                    var commentToAdd = createCommentElement(jsonRes.values.postID, jsonRes.key,jsonRes.values.text, jsonRes.values.owner);
-                    commentToAdd.insertBefore('#' + id);
-                } 
-            );
-        }       
-        /*var newComment = $('<div style="border: 1px solid black;" />').text(
+      		// Format json object  	
+          console.log("first name here is: ," , firstname);
+      		var formData = {
             
-        )*/
+	 			'text'	: $('#comment-box-' + id).val(), 
+	 			'postID'	: id,
+	 			'firstname' : firstname, 
+	 			'lastname' : lastname,  
+        		'userID'  : userID,
+        		'postInx' : postInx
+
+	 			// note no comment id here, it is generated backend 
+ 			};
+ 			// var postingData = JSON.stringify(formData);  
+
+ 			$.post('/addcomment', formData, function(response) {
+ 					// TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+ 					var jsonRes = JSON.parse(response);
+ 					console.log("Json response is: ", jsonRes);          
+
+         			 var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, commentText, firstname + lastname);
+ 					commentToAdd.insertBefore('#' + id);
+          			refreshPage(); 
+ 				} 
+ 			);
+    }      	
+        	
+
         
-     }))
+    }))
      console.log("returning comment elements");
-
-
   return elem;
 }
 
-
-function createCommentElement(postKey, commentID, commentText, commentOwner) {
-
-    var commentDiv = $('<div/>', {
-        id: "" + postKey + "*" + commentID,
-        text: commentOwner + " says " + commentText
-    });
-
+function createCommentElement(postKey, postInx, commentID, commentText, commentOwner) {
+  console.log("commentText is ;:: ", commentText);
+	var commentDiv = $('<div/>', {
+		id: "" + postKey + "*" + commentID,
+		text: commentOwner + " says " + commentText
+	});
     return commentDiv;
 }
-
-
-
     </script>
 </head>
 
