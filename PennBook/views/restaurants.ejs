@@ -186,7 +186,7 @@ function createPostElement(post) {
 
     elem
         .append(createPostContent(post))
-        .append(createCommentButton(post.key, post.inx));
+        .append(createCommentSection(post));
   console.log("returning post element: ", elem);
 
   return elem;
@@ -211,7 +211,7 @@ function createCommentSection(post) {
             post['value']['commentTexts'][i],
             post['value']['commentOwners'][i]));
     }
-    elem.append(createCommentButton(post.key));
+    elem.append(createCommentButton(post.key, post.inx));
     return elem;
 }
 
