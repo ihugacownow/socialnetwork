@@ -18,6 +18,21 @@ var sess = {
 }
 
 var async = require('async');
+var testUser = {"key" : "wuwc@sas.upenn.edu", 
+                              "values" : {
+                                  "firstname" : "Wai",
+                                  "lastname" : "Wu",
+                                  "password" : "password2",
+                                  "status" : "Wai's status",
+                                  "affiliation" : "University of Pennsylvania",
+                                  "interests" : ["computer science", "Nets 212"],
+                                  "birthday" : "April 20th 1996",
+                                  "online" : "false",
+                                  "posts" : JSON.stringify([]),
+                                  "comments" : JSON.stringify({"array" : [0]}),
+                                  "friendposts" : JSON.stringify([0]),
+                                  "notifications" : JSON.stringify([])
+                               }};
 app.use(session(sess));
 app.use(express.bodyParser());
 app.use(express.logger("default")); 
@@ -29,6 +44,37 @@ app.use(express.logger("default"));
    POST is often used when submitting web forms ('method="post"'). */
 
 app.get('/', routes.get_main);
+
+app.get('/profiles', function(req, res) {
+
+   res.render('profile.ejs', { 
+      message: "", 
+      footer: "Full Name: Wai Wu, SEAS Login: wuwc"
+   });
+});
+
+// Start of testing stuff -------------
+app.get('/getProfile', function(req, res) {
+   posts = JSON.stringify({"key" : "wuwc@sas.upenn.edu", 
+                              "values" : {
+                                  "firstname" : "Wai",
+                                  "lastname" : "Wu",
+                                  "password" : "password2",
+                                  "status" : "Wai's status",
+                                  "affiliation" : "University of Pennsylvania",
+                                  "interests" : ["computer science", "Nets 212"],
+                                  "birthday" : "April 20th 1996",
+                                  "online" : "false",
+                                  "posts" : JSON.stringify([]),
+                                  "comments" : JSON.stringify({"array" : [0]}),
+                                  "friendposts" : JSON.stringify([0]),
+                                  "notifications" : JSON.stringify([])
+                               }});
+   console.log("sending here"); 
+   res.send(posts);
+});
+
+// TODO: Test for load all posts at the start of the restaurants page 
 app.get('/getPosts', function(req, res) {
    posts = JSON.stringify([
                {'key' : "0", 
@@ -61,6 +107,24 @@ app.get('/getPosts', function(req, res) {
    res.send(posts);
 });
 // app.get('/', routes.test);
+app.get('/users', function(req, res) {
+   // req.params 
+
+   res.send() // sent back id of the user 
+
+})
+
+app.get('/profile', function(req, res) {
+   var queryID = req.query.id;  
+   console.log(" The query ID is... ", queryID);
+   res.render('profile.ejs', { 
+      user: testUser,
+      message: "", 
+      footer: "Full Name: Wai Wu, SEAS Login: wuwc"
+   });
+
+})
+
 app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);
@@ -76,6 +140,8 @@ app.post('/restaurants/:firstname:lastname:ID', routes.post_profile);
 app.post('/addcomment', routes.post_addcomment);
 app.post('/search', routes.post_search);
 app.get('/notifications', routes.get_notifications);
+app.use('/css', express.static('views/css'));
+app.use('/js', express.static('views/js'));
 // app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */

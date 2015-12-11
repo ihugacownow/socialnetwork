@@ -16,6 +16,7 @@ var getTestMain = function(req, res) {
 	});
 };
 
+
 var postLogin = function(req, res) {
 	var userInput = req.body.userField;
 	var passwordInput = req.body.passwordField;
@@ -358,14 +359,7 @@ var postAddComment = function(req, res) {
 	// db.addComment("Wai", "Wu", "0", postID, text, function(err, data) {
 	// 	console.log("finished calling db add comment!");
 	// 	// TODO: Return the comment object containing, because I need the inx before populating the front end 
-	// 	res.send(JSON.stringify({
-	// 				"key" : 2, 
-	// 				"value" : {
-	// 					"text" : text,
-	// 					"owner" : "Wai Wu",
-	// 					"postID" : postID
-	// 				}
-	// 			}));					
+				
 	// });		
 
 	res.send(JSON.stringify({
