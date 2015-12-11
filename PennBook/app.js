@@ -46,6 +46,7 @@ app.use(express.logger("default"));
 app.get('/', routes.get_main);
 app.get('/getPostsAjax', routes.get_postsAjax);
 
+
 app.get('/profiles', function(req, res) {
 
    res.render('profileTest.ejs', { 
@@ -54,62 +55,9 @@ app.get('/profiles', function(req, res) {
    });
 });
 
-// // Start of testing stuff -------------
-// app.get('/getProfile', function(req, res) {
-//    posts = JSON.stringify({"key" : "wuwc@sas.upenn.edu", 
-//                               "values" : {
-//                                   "firstname" : "Wai",
-//                                   "lastname" : "Wu",
-//                                   "password" : "password2",
-//                                   "status" : "Wai's status",
-//                                   "affiliation" : "University of Pennsylvania",
-//                                   "interests" : ["computer science", "Nets 212"],
-//                                   "birthday" : "April 20th 1996",
-//                                   "online" : "false",
-//                                   "posts" : [],
-//                                   "comments" : [],
-//                                   "friendposts" : [0],
-//                                   "notifications" : []
-//                                }});
-//    console.log("sending here"); 
-//    res.send(posts);
-// });
 
-// TODO: Test for load all posts at the start of the restaurants page 
+app.get('/getPostsAjax', routes.get_postsAjax);
 
-
-// app.get('/getPosts', function(req, res) {
-//    posts = JSON.stringify([
-//                {'key' : "0", 
-//                'inx' : "0",
-//                'value' : {"owner1"  : "Brian", 
-//                          'owner2'   : "Wai", 
-//                          'text'     : "yoooooo my post is this", 
-//                          'commentTexts' : ["comment 1", "comment 2"],                         
-//                          'commentOwners' : ["Brian", "Wai Commenter"],
-//                          'commentIDs'    : ["1","2"]
-//                         }                       
-                     
-//                }, 
-
-         
-//                {'key' : "0", 
-//                'inx' : "0",
-//                'value' : {"owner1"  : "Brian", 
-//                          'owner2'   : "Wai", 
-//                          'text'     : "yoooooo my post is this", 
-//                          'commentTexts' : ["comment 1", "comment 2"],
-//                          'commentOwners' : ["Brian", "Wai Commenter"],
-//                          'commentIDs'    : ["1","2"]
-//                         }                       
-                     
-//                }, 
-
-//          ]);
-//    console.log("sending here"); 
-//    res.send(posts);
-// });
-// app.get('/', routes.test);
 app.get('/users', function(req, res) {
    // req.params 
 
@@ -152,6 +100,7 @@ app.get('/logout', function(req, res) {
   req.session.ID = ''; 
   res.redirect('/');
 });
+
 // app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */

@@ -128,12 +128,12 @@ var postRestaurants = function(req, res) {
 			footer: "Full Name: Wai Wu, SEAS Login: wuwc"
 		});
 	}
-	db.getFriends("0", function(err, friends) {
-		req.session.friends = friends; //set user's friend list
+	db.getFriends(req.session.ID, function(err, friends) {
 		var friendsArr = [];
 		for (var i = 0; i < friends.length; i++) {
 			friendsArr.push(friends[i].value);
 		}
+		req.session.friends = friendsArr; //set user's friend list
 		if (err) {
 			console.log("error:", err);
 		}
@@ -144,14 +144,15 @@ var postRestaurants = function(req, res) {
 				console.log("post data from doPostsstts data , " , postsData);
 				var filteredPosts = []
 				for (var i = 0; i < postsData.length; i++) {
-					if (contains(postsData[i].value.owner1, friends) !== -1 ||
-						contains(postsData[i].value.owner2, friends) !== -1) {
+					if (contains(postsData[i].value.owner1, friendsArr) == true ||
+						contains(postsData[i].value.owner2, friendsArr)  == true) {
 						console.log("WE HAVE A VIEWABLE POST");
 						filteredPosts.push(postsData[i]);
 					}
 
 				}
-				res.render('restaurants.ejs', {session : req.session, message : "", posts : postsData});
+				console.log("FILTERED POSTS: ". filteredPosts);
+				res.render('restaurants.ejs', {session : req.session, message : "", posts : filteredPosts});
 			});	
 		});
 	});
@@ -363,6 +364,7 @@ var postDeleteRestaurant = function(req, res) {
 var postAddComment = function(req, res) {
 	var text = req.body.text;
 	var postID = req.body.postID;
+
 	var firstname = req.body.firstname;
 	var lastname = req.body.lastname;
 	var userID = req.body.userID;
@@ -417,7 +419,7 @@ var postProfile = function(req, res) {
 					}
 					//also get the user's value fields (must display these if it is current user)
 					db.lookupUser(req.session.id, function(userData, err) {
-						res.render('profile.ejs', {session : req.session, userObject: userData.value, friendInt : val, message : "", posts : postsData});
+						res.render('profile.ejs', {session : req.session, userObject: userData.value, friendInt : val, message : "", posts : filteredPosts});
 					})
 				})
 			});	
@@ -471,11 +473,13 @@ var postSearch = function(req, res) {
 //used to refresh a newsfeed without refreshin the entire page
 var getPostsAjax = function(req, res) {
 	db.getFriends(req.session.ID, function(err, friends) {
-		req.session.friends = friends; //set user's friend list
+		console.log("our ID: ", req.session.ID);
+		console.log("OUR FRIENDS:", friends);
 		var friendsArr = []; //contains the userIDs of all the friends of given user
 		for (var i = 0; i < friends.length; i++) {
 			friendsArr.push(friends[i].value);
 		}
+		req.session.friends = friendsArr;
 		if (err) {
 			console.log("error:", err);
 		}
@@ -488,15 +492,20 @@ var getPostsAjax = function(req, res) {
 				var filteredPosts = []
 				//only include posts such that one of the owners is friends with the user
 				for (var i = 0; i < postsData.length; i++) {
-					if (contains(postsData[i].value.owner1, friends) !== -1 ||
-						contains(postsData[i].value.owner2, friends) !== -1) {
+					console.log("friends list: ", friendsArr);
+					console.log("owner 1 and owner 2:", postsData[i].value.owner1, postsData[i].value.owner2);
+					if (contains(postsData[i].value.owner1, friendsArr) == true ||
+						contains(postsData[i].value.owner2, friendsArr) == true) {
 						console.log("WE HAVE A VIEWABLE POST");
+						console.log("friends list: ", friendsArr);
+						console.log("owner 1 and owner 2:", postsData[i].value.owner1, postsData[i].value.owner2);
 						filteredPosts.push(postsData[i]);
 					}
 				}
+				console.log("filtered POSTS: ", filteredPosts);
 				console.log("-------------- BACKEND: Sending posts data from getPostsAjax: ",
 				  {session : req.session, message : "", posts : postsData});
-				res.send(JSON.stringify({session : req.session, message : "", posts : postsData}));
+				res.send(JSON.stringify({session : req.session, message : "", posts : filteredPosts}));
 			});	
 		});
 	});

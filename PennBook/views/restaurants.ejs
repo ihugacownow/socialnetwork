@@ -3,16 +3,12 @@
 
 <head>
 
-    <meta charset="utf-8">
+
+ 	<meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-
-
-<!--  Merge 1 <!DOCTYPE html>
-<html>
-  <head><title>Map</title> -->
   <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style type="text/css">
@@ -37,6 +33,7 @@
   <script type="text/javascript"> 
   </script>
 
+
     <title>NewsFeed</title>
 
     <!-- Bootstrap Core CSS -->
@@ -56,6 +53,7 @@
   var lastname; 
   var email; 
   var userID; 
+
 
   // Other Variables for functionality 
     var tagButton; 
@@ -94,7 +92,6 @@
     });
 
 
-     
 
     postTable = $('#post-table');
     tagButton = $('#tags');
@@ -110,8 +107,7 @@
 // -------------------
 
 var setUpSearchBar = function(elem, allUsers) {
-    console.log("Seting up search bar");
-
+   
   elem
     // button
     .append($('<input/>', {
@@ -156,7 +152,6 @@ var refreshPage = function() {
     console.log("Finished refreshing page and Prased response is: ", response);
 		loadPosts(response); 
 
-
 	});
 	console.log("post table is: ", postTable);
 }
@@ -181,6 +176,7 @@ function createPostElement(post) {
         .append(createPostContent(post))
         .append(createCommentSection(post));
   console.log("returning post element: ", elem);
+  
 
   return elem;
 }
@@ -222,6 +218,7 @@ function createPostContent(post) {
   
   console.log("post is: ", post.value);
 
+
   return elem;
 }
 
@@ -249,6 +246,7 @@ function createCommentButton(id, postInx) {
       class: 'btn btn-primary',
       // Sends a post first 
       click: function() {     
+
       		// Format json object  	
           console.log("first name here is: ," , firstname);
       		var formData = {
@@ -267,22 +265,46 @@ function createCommentButton(id, postInx) {
  			$.post('/addcomment', formData, function(response) {
  					// TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
  					var jsonRes = JSON.parse(response);
- 					console.log("Json response is: ", jsonRes);          
+ 					console.log("Json response is: ", jsonRes);
+          
 
-         			 var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, commentText, firstname + lastname);
- 					commentToAdd.insertBefore('#' + id);
-          			refreshPage();
+       		   var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, 	commentText, firstname + lastname);
 
+ 						commentToAdd.insertBefore('#' + id);
+          		refreshPage(); 
  				} 
  			);
     }      	
-        	
-
+      
         
     }))
      console.log("returning comment elements");
   return elem;
 }
+
+/*
+   // Format json object   
+        //     var formData = {
+        //         'text'  : $('#comment-box-' + id).val(), 
+        //         'postID'    : id,
+        //         'firstname' : firstname, 
+        //         'lastname' : lastname,  
+        //         // note no comment id here, it is generated backend 
+        //     };
+        //     // var postingData = JSON.stringify(formData);  
+
+        //     $.post('/addcomment', formData, function(response) {
+        //             // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+        //             var jsonRes = JSON.parse(response);
+        //             console.log("Json response is: ", jsonRes);
+        //             var commentToAdd = createCommentElement(jsonRes.values.postID, jsonRes.key,jsonRes.values.text, jsonRes.values.owner);
+        //             commentToAdd.insertBefore('#' + id);
+        //         } 
+        //     );
+        // }       
+            
+            */
+
 
 function createCommentElement(postKey, postInx, commentID, commentText, commentOwner) {
   console.log("commentText is ;:: ", commentText);
@@ -290,6 +312,7 @@ function createCommentElement(postKey, postInx, commentID, commentText, commentO
 		id: "" + postKey + "*" + commentID,
 		text: commentOwner + " says " + commentText
 	});
+
     return commentDiv;
 }
     </script>

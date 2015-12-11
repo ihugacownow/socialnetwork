@@ -161,7 +161,7 @@
           console.log("error: " + err); 
         }
         if (data.Items.length == 0) {
-          callback(err, null);
+          callback(err, []);
         } else {
             var items = [];
             console.log("NUMBER OF ITEMS: ", data.Items.length);

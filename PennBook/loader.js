@@ -69,7 +69,7 @@ var posts = [
 	["0", JSON.stringify({
 		"owner1" : 0, 
 		"owner2" :1, 				
-		"text" : "love u",
+		"text" : "Hi Wai!  Welcome to facebook!",
 		"commentIDs" : JSON.stringify([0, 1])
 	})]
 ];
@@ -79,14 +79,14 @@ var comments = [
 	["0", JSON.stringify({
 		"postID" : 0,
 		"owner" : 0,
-		"text" : "love u too sexy",
+		"text" : "I hope you enjoy our website!",
 		"firstname" : "Brian",
 		"lastname" : "Hirsh",
 	})], 
 	["1", JSON.stringify({
 		"postID" : 0,
 		"owner" : 1,
-		"text" : "love u too sexy",
+		"text" : "Thank you Brian.  I love it!",
 		"firstname" : "Wai",
 		"lastname" : "Wu"
 	})
