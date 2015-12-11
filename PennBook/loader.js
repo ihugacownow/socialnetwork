@@ -53,7 +53,7 @@ var users = [
 		"firstname" : "test",
 		"lastname" : "test",
 		"password" : "test",
-		"status" : "test's status",
+		"status" : "tests status",
 		"affiliation" : "University of Pennsylvania",
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",

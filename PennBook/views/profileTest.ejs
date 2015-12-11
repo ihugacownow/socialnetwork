@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>1 Col Portfolio - Start Bootstrap Template</title>
+    <title>Profile Page</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -21,79 +21,64 @@
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-  <!--  This is for the autocomplete widget 
- -->
-
-
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
     <script>
 
+     // initialize variables so that they can be passed to backend during the rendering 
     var postTable; 
     var firstname;
     var lastname; 
+    var email; 
+    var userID; 
+
+  // Other Variables for functionality 
     var tagButton; 
     var namesearch; 
     var allUsers;
-    var userID; // TODO: Hard code to 0 
+
+  console.log("session is: asdfdsfsdafdsfsafdfadsfdsfsafsfs");
+  var c = '<%- JSON.stringify(session) %>';
+  console.log("session id is, ", JSON.parse(c));
+  var cc = JSON.parse(c);
+  firstname = cc.firstname;
+  lastname = cc.lastname;
+  email = cc.email;
+  userID = cc.ID;
+  allUsers = cc.users; 
+  console.log("ALL USERS ARE: ", allUsers);
+
+
+  // Additional section for user profile passed in 
+
+    var userRaw = '<%- JSON.stringify(user) %>';
+        console.log("UNparsed user is, ",c);
+
+    console.log("parsed user is, ", JSON.parse(userRaw));
+    var parsedUser = JSON.parse(userRaw);
    
 
+
+
     $(function(){
-      // hard code: 
-      posteeID = 0;
-      posterID = 1;
+      // Additional for add posts later 
+      posteeID = parsedUser['inx'];
+      posterID = userID;
 
 
-        var availableTags = [
-      "Brian sucks :((",
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ];
-
-    allUsers = {
-        "Java" : "javaurl"
-    };
+      var availableTags = [];
+      for (var k = 0; k < allUsers.length; k++) {
+        availableTags.push(allUsers[k]['key']);
+      }
 
     $( "#tags" ).autocomplete({
       source: availableTags
     });
-
-
-    
-
-   
 
     postTable = $('#post-table');
     tagButton = $('#tags');
     namesearch = $('#namesearch');
 
     setUpSearchBar(namesearch); 
-    refreshPage(); 
+    refreshPage(parsedUser); 
 
 
 
@@ -114,12 +99,20 @@ var setUpSearchBar = function(elem) {
       click: function() {     
             // Format json object   
             // var postingData = JSON.stringify(formData);  
-            var formData = $('#tags').val();  
-            var lookupUser = allUsers[formData];    
+            var formData = $('#tags').val(); 
+            var lookupUser; 
+            for (var l = 0; l < allUsers.length; l++) {
+              console.log("llooping through all users: ", allUsers[l]['key']);
+              if (allUsers[l]['key'] == formData) {
+                lookupUser = allUsers[l];
+              }
+            }
+            // var lookupUser = allUsers[formData];    
+            console.log("lookupUser is: ", lookupUser);
             // rsponse would have been a user id
-            window.location = '/profile?id=' + lookupUser;
+            window.location = '/profile?userObject=' + JSON.stringify(lookupUser);
                 
-        }       
+        }   
         /*var newComment = $('<div style="border: 1px solid black;" />').text(
             
         )*/
@@ -127,76 +120,30 @@ var setUpSearchBar = function(elem) {
      }));   
 }
 
-var refreshPage = function() {
+// Refresh page 
+var refreshPage = function(parsedUser) {   
+  console.log("Refreshing tehe page");
+  $.get('/getPostsAjax', function(res) {
+    // Reset the table first 
+    console.log("FRONTEND: Response from server: ", res);
+    postTable.html(''); // search specifics later 
+    var responseJSON = JSON.parse(res); 
+    var response = responseJSON.posts; 
+        console.log("FRONTEND: parsed response to send to loadposts is: ", response);
 
-   var posts = [
-           {'key' : "0", 
-           'inx' : "0",
-           'value' : {"owner1"  : "Brian", 
-                     'owner2'   : "Wai", 
-                     'text'     : "Seriously y post is this", 
-                     'commentTexts' : ["comment 1", "comment 2"],                         
-                     'commentOwners' : ["Brian", "Wai Commenter"],
-                     'commentIDs'    : ["1","2"]
-                    }                       
-                 
-           }, 
+    console.log("Prased response is: ", response);
+    loadPosts(response); 
 
-     
-           {'key' : "0", 
-           'inx' : "0",
-           'value' : {"owner1"  : "Brian", 
-                     'owner2'   : "Wai", 
-                     'text'     : "yoooooo my post is this", 
-                     'commentTexts' : ["comment 1", "comment 2"],
-                     'commentOwners' : ["Brian", "Wai Commenter"],
-                     'commentIDs'    : ["1","2"]
-                    }                       
-                 
-           }, 
-
-     ];
-
-
-
-  var userJSON = {"key" : "wuwc@sas.upenn.edu", 
-                              "values" : {
-                                  "firstname" : "Wai",
-                                  "lastname" : "Wu",
-                                  "password" : "password2",
-                                  "status" : "Wais status",
-                                  "affiliation" : "University of Pennsylvania",
-                                  "interests" : ["computer science", "Nets 212"],
-                                  "birthday" : "April 20th 1996",
-                                  "online" : "false",
-                                  "posts" : [],
-                                  "comments" : [],
-                                 "friendposts" : [0],
-                                  "notifications" : []
-                               }};
-
-    loadProfile(userJSON);
-    loadAddPost();
-
-
-
-    $.get('/getPosts', function(response) {
-        // Reset the table first 
-        console.log("Response from server: ", response);
-       
-
-        postTable.html(''); // search specifics later         
-        loadPosts(posts);
-        //TODO: Testing 
-        // loadPosts(JSON.parse(response));  
-    });
-    console.log("post table is: ", postTable);
+  });
+      loadProfile(parsedUser);
+          loadAddPost();
+  console.log("post table is: ", postTable);
 }
+
 
 // Creating the add posts part 
 // Load Profile happens here 
 function loadAddPost() {
-
  
  // TODO: 
   $('#addPost-table').append( $('<div/>', {style: 'width: 50%; text-align: center; display: inline-box; font-size: 30px;'}).text("Add Posts")
@@ -211,7 +158,6 @@ function createAddButton(posterID, posteeID) {
   var elem = $('<div/>', {
         id: "createAddButton", 
   });
-
 
   elem
     // label
@@ -230,36 +176,41 @@ function createAddButton(posterID, posteeID) {
       class: 'btn btn-primary',
       // Sends a post first 
       click: function() {     
-            // Format json object   
+            // Format json object  
+            var newText =  $('#post-add').val();  
             var formData = {
                 'text'  : $('#post-add').val(), 
                 'owner2' : posteeID, 
-                'owner1' : posterID,  
+                'owner1' : posterID,  // TODO: check who is who 
                 // note no comment id here, it is generated backend 
             };
+
+            console.log("sending add post data to backend: ", formData);
             // var postingData = JSON.stringify(formData);  
 
-              //$.post('/addpost', formData, function(response) {
+              $.post('/addpost', formData, function(response) {
                     // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
-                    console.log("Done with posting");
 
                     // Hard code TODO
-                    var newPost = {'key' : "0", 
-                                  'inx' : "0",
-                                  'value' : {"owner1"  : "Brian", 
-                                             'owner2'   : "Wai", 
-                                             'text'     : "Seriously y post is this", 
-                                             'commentTexts' : ["comment 1", "comment 2"],                         
-                                             'commentOwners' : ["Brian", "Wai Commenter"],
-                                             'commentIDs'    : ["1","2"]
+                    var newKey = (JSON.parse(response))['postID'];
+                                        console.log("Done with posting, and postID: ", newKey);
+
+                    var newPost = {'key' : newKey, 
+                                  'inx' : newKey,
+                                  'value' : {"owner1"  : posteeID, 
+                                             'owner2'   : posterID, 
+                                             'text'     : newText, 
+                                             'commentTexts' : [],                         
+                                             'commentOwners' : [],
+                                             'commentIDs'    : []
                                               }                       
                  
                     };
                     
                     var postToAdd = createPostElement(newPost);
                     postTable.append(postToAdd);
-              //  } 
-           // );
+                } 
+            );
         }       
         /*var newComment = $('<div style="border: 1px solid black;" />').text(
             
@@ -278,7 +229,7 @@ function createAddButton(posterID, posteeID) {
 function loadProfile(jsonResponse) {
   // TODO where is this key from??? 
   var key = jsonResponse['key'];
-  var values = jsonResponse['values']; 
+  var values = jsonResponse['value']; 
  
  // TODO: 
   $('#profile-table').append( $('<div/>', {style: 'width: 50%; text-align: center; display: inline-box; font-size: 30px;'}).text("Profile Information")
@@ -392,8 +343,142 @@ function createFriendButton(divID, friendInt) {
 }
 
 
-// Load Posts all happen after here 
 
+// LOAD POSTS SECTION ------------------------
+function loadPosts(jsonResponse) {
+    var posts = jsonResponse;
+    for (var i = 0; i < posts.length; i++) {
+        $('#post-table').append(createPostElement(posts[i]))
+            .append($("<hr/>"));
+    }
+}
+
+
+function createPostElement(post) {
+    var elem = $('<div/>', {
+        id: "post-" + post.key,
+        class: 'row'
+    });
+
+    elem
+        .append(createPostContent(post))
+        .append(createCommentSection(post));
+  console.log("returning post element: ", elem);
+
+  return elem;
+}
+
+// // Debug 
+//      console.log("A",    post['key']);
+//      console.log("comment ID ",  post['value']['commentIDs'][i]);
+//     console.log("comment Texts ",post['value']['commentTexts'][i]);
+//      console.log("comment Owners ",post['value']['commentOwners'][i]);
+
+function createCommentSection(post) {
+  console.log("Create comment section called");
+  console.log("Post is ", post);
+    var elem = $('<div/>', {
+        class: 'col-md-5'
+    });
+    for (var i = 0; i < post['value']['commentTexts'].length; i++) {    
+        elem.append(createCommentElement
+            (post['key'], post['inx'],
+            post['value']['commentIDs'][i], 
+            post['value']['commentTexts'][i],
+            post['value']['commentOwners'][i]));
+    }
+    elem.append(createCommentButton(post.key, post.inx));
+    return elem;
+}
+
+
+function createPostContent(post) {
+    var elem = $('<div/>');
+  
+  // Appending Text of posts 
+    elem.append(
+        $('<div/>', {
+            class: 'col-md-7',
+            style: "text-align: center; font-size: 20px;",
+        }).text(post.value.text)
+    ); 
+  
+  console.log("post is: ", post.value);
+
+  return elem;
+}
+
+
+function createCommentButton(id, postInx) {
+  // Assign post id as id of the comment box 
+  var commentText = $('#comment-box-' + id).val(); 
+  var elem = $('<div/>', {
+        id: id, 
+  });
+
+  elem
+    // label
+    .append($('<label/>').text("Add new comment:"))
+    // text field
+    .append($('<input/>', {
+        type: "text",
+        style: "margin: 7px",
+        id: "comment-box-" + id,
+    }))
+    // button
+    .append($('<input/>', {
+      value: "Post",
+      type: "button",
+      class: 'btn btn-primary',
+      // Sends a post first 
+      click: function() {     
+          // Format json object   
+          console.log("first name here is: ," , firstname);
+          var formData = {
+            
+        'text'  : $('#comment-box-' + id).val(), 
+        'postID'  : id,
+        'firstname' : firstname, 
+        'lastname' : lastname,  
+            'userID'  : userID,
+            'postInx' : postInx
+
+        // note no comment id here, it is generated backend 
+      };
+      // var postingData = JSON.stringify(formData);  
+
+      $.post('/addcomment', formData, function(response) {
+          // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+          var jsonRes = JSON.parse(response);
+          console.log("Json response is: ", jsonRes);          
+
+               var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, commentText, firstname + lastname);
+          commentToAdd.insertBefore('#' + id);
+                refreshPage(); 
+        } 
+      );
+    }       
+          
+
+        
+    }))
+     console.log("returning comment elements");
+  return elem;
+}
+
+function createCommentElement(postKey, postInx, commentID, commentText, commentOwner) {
+  console.log("commentText is ;:: ", commentText);
+  var commentDiv = $('<div/>', {
+    id: "" + postKey + "*" + commentID,
+    text: commentOwner + " says " + commentText
+  });
+    return commentDiv;
+}
+
+
+
+// Load Posts all happen after here 
+/*
 function loadPosts(jsonResponse) {
     var posts = jsonResponse;
     $('#post-table').append( $('<div/>', {style: 'width: 50%; text-align: center; display: inline-box; font-size: 30px;'}).text("List of Posts")
@@ -463,7 +548,7 @@ function createPostContent(post) {
             post['value']['commentOwners'][i]));
     } 
   
-    console.log("returning post content with comments");*/
+    console.log("returning post content with comments");
 
   return elem;
 }
@@ -512,7 +597,7 @@ function createCommentButton(id) {
         }       
         /*var newComment = $('<div style="border: 1px solid black;" />').text(
             
-        )*/
+        )
         
      }))
      console.log("returning comment elements");
@@ -530,11 +615,13 @@ function createCommentElement(postKey, commentID, commentText, commentOwner) {
     });
 
     return commentDiv;
-}
+}*/
+
 
 
 
     </script>
+
 </head>
 
 <body>

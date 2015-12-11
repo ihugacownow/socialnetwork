@@ -45,7 +45,19 @@ var postLogin = function(req, res) {
 				req.session.firstname = json.firstname;
 				req.session.lastname = json.lastname;
 				req.session.email = userInput; 
-				res.redirect('/restaurants');			
+
+				db.getUsers(function(err, users) {
+					if (err) {
+						console.log("error getting list of users: " + err);
+					} else {
+						//make an array of all the users with the given first and last name
+						req.session.users = users;
+						console.log("Adding users to req.session: ", users);
+						res.redirect('/restaurants');
+					}
+					
+				});
+						
 			} else {
 				// Should not hit this case 
 				res.render('main.ejs', {
@@ -500,7 +512,7 @@ var postAddPost = function(req, res) {
 			console.log("error adding post: ", err);
 		} else {
 			//send back the ID of the post so front-end can use it to make a unique div
-			res.send({"postID": data});
+			res.send(JSON.stringify({"postID": data}));
 		}
 	})
 

@@ -57,6 +57,11 @@
   var email; 
   var userID; 
 
+  // Other Variables for functionality 
+    var tagButton; 
+    var namesearch; 
+    var allUsers;
+
   console.log("session is: asdfdsfsdafdsfsafdfadsfdsfsafsfs");
   var c = '<%- JSON.stringify(session) %>';
   console.log("session id is, ", JSON.parse(c));
@@ -65,47 +70,24 @@
   lastname = cc.lastname;
   email = cc.email;
   userID = cc.ID;
+  allUsers = cc.users; 
 
-  console.log("loaded first name is: ", firstname);
+
+  console.log("ALL USERS ARE: ", allUsers);
 
 
-  	// Other Variables for functionality 
-    var tagButton; 
-    var namesearch; 
-    var allUsers;
+  	
    
 
     //TODO: Hard codeed 
     $(function(){
-        var availableTags = [
-      "Brian sucks :((",
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ];
+    	console.log("windows on loadddddd....");
+    	var availableTags = [];
+    	for (var k = 0; k < allUsers.length; k++) {
+    		availableTags.push(allUsers[k]['key']);
+    	}
 
-    allUsers = {
-        "Java" : "javaurl"
-    };
+    	console.log("availableTags are: ", availableTags);
 
     $( "#tags" ).autocomplete({
       source: availableTags
@@ -118,7 +100,7 @@
     tagButton = $('#tags');
     namesearch = $('#namesearch');
 
-    setUpSearchBar(namesearch); 
+    setUpSearchBar(namesearch, allUsers); 
     refreshPage(); 
 
 
@@ -127,22 +109,31 @@
 
 // -------------------
 
-var setUpSearchBar = function(elem) {
+var setUpSearchBar = function(elem, allUsers) {
     console.log("Seting up search bar");
 
   elem
     // button
     .append($('<input/>', {
-      value: "Get",
+       value: "Search",
       type: "button",
+      class: 'btn btn-primary',
       // Sends a post first 
       click: function() {     
             // Format json object   
             // var postingData = JSON.stringify(formData);  
-            var formData = $('#tags').val();  
-            var lookupUser = allUsers[formData];    
+            var formData = $('#tags').val(); 
+            var lookupUser; 
+            for (var l = 0; l < allUsers.length; l++) {
+            	console.log("llooping through all users: ", allUsers[l]['key']);
+            	if (allUsers[l]['key'] == formData) {
+            		lookupUser = allUsers[l];
+            	}
+            }
+            // var lookupUser = allUsers[formData];    
+            console.log("lookupUser is: ", lookupUser);
             // rsponse would have been a user id
-            window.location = '/profile?id=' + lookupUser;
+            window.location = '/profile?userObject=' + JSON.stringify(lookupUser);
                 
         }       
         /*var newComment = $('<div style="border: 1px solid black;" />').text(

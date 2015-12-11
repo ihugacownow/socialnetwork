@@ -118,10 +118,12 @@ app.get('/users', function(req, res) {
 })
 
 app.get('/profile', function(req, res) {
-   var queryID = req.query.id;  
-   console.log(" The query ID is... ", queryID);
-   res.render('profile.ejs', { 
-      user: testUser,
+   var user = JSON.parse(req.query.userObject);  
+   console.log(" The query ID is... ", user);
+   console.log("res session is !!!!!!!: ", req.session);
+   res.render('profileTest.ejs', { 
+      user: user,
+      session: req.session,
       message: "", 
       footer: "Full Name: Wai Wu, SEAS Login: wuwc"
    });

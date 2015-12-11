@@ -220,12 +220,12 @@ var myDB_updateNotifications = function(key, inx, attributes, route_callbck) {
 //function for adding a post to our post database
 var myDB_addPost = function(owner1, owner2, text, route_callbck) {
 	//add the post to our post database, return the postID
-	var value = {"owner1": owner1, "owner2": owner2, "text": text, "commentIDs": []};
+	var value = JSON.stringify({"owner1": owner1, "owner2": owner2, "text": text, "commentIDs": []});
 	postDB.put2(value, function(err, data) {
 		if (err) {
 			console.log("could not add post to database (KVS function failed): ", err);
 		} else {
-			route_callbck(data);
+			route_callbck(null, data);
 		}
 	})
 }
