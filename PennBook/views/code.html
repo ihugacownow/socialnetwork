@@ -1,0 +1,58 @@
+
+<script>
+
+function postComment(post_id) {
+	// update backend
+	ajax send backend request(function(comment) {
+
+		//update table
+		$(post_id).appendElementInRightPosition(createCommentElement(comment));
+	});
+}
+
+function createCommentElement(comment) {
+	var commentDiv = $('div', something...);
+	return commentDiv;
+}
+
+function createPostElement(post) {
+	var postDiv = $('div', {
+		id: post.id,
+		...
+	});
+	postDiv.appendElement(
+		$('div', Content div...),
+	);
+	for (each comment in post) {
+		postDiv.appendElement(createCommentElement(comment));
+	}
+	postDiv.appendElement(
+		input div...
+		input button...
+		.click(function(){postComment(post.id);});
+	);
+
+	/*
+	<div id="someuniquestring">
+		<div>Content</div>
+		<div>Comment1</div>
+		<div>Comment2</div>
+		...
+		<div><input> Reply here</input></div>
+	</div>
+	*/
+
+	return postDiv;
+}
+
+$(function() {
+	do_some_ajax_request(function(posts){
+		for (everything in posts) {
+			$('#post_table').appendElement(createPostElement(post));
+		}
+	})
+});
+</script>
+
+<div id="post_table">
+</div>

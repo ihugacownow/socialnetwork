@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    body {
+      padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: white;
+         }
+    .login-box {
+    max-width: 330px;
+    margin: 0 auto;
+      }
+    .login-box .form-control {
+      margin-bottom: 10px;
+    }
+  </style>
+
+  
+  
+</head>
+
+<body>
+
+<table id = "profile-table" border="1">
+<table id = "post-table" border="1">
+
+ <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+  </script><script type="text/javascript">  
+  </script>
+<script type="text/javascript">
+var postTable; 
+var profileTable; 
+var userOnPage; 
+
+window.onload = function() {
+  userOnPage = '<%- JSON.stringify(user)%>'
+
+  console.log("loadinadsfasfg");
+  postTable = $('#post-table');
+  profileTable = $('#profile-table');
+  console.log("loading"); 
+  refreshPage(); 
+}
+
+
+var refreshPage = function() {
+  console.log("getting profile "); 
+
+  // $.get('/getProfile', function(response) {
+  //   // res.userObject
+  //   //res.friendInt
+  //   //res.posts
+
+  //     // Reset the table first 
+  //     console.log("Response from server for profile: ", response);
+  //     profileTable.html(''); // search specifics later 
+  //     loadProfile(JSON.parse(response)); 
+  //   });
+  // var userJson = JSON.parse(userOnPage);
+  var userJson = userOnPage;
+  console.log("user JSON is ", userJson); 
+  userJson = JSON.parse(userJson);
+  console.log(userJson);
+    
+
+  loadProfile(userJson);
+  console.log("Profile table is: ", profileTable);    
+
+  console.log("getting posts"); 
+
+  $.get('/getPosts', function(response) {
+    // Reset the table first 
+    console.log("Response from server: ", response);
+    postTable.html(''); // search specifics later 
+    loadPosts(JSON.parse(response)); 
+  });
+  console.log("post table is: ", postTable);
+}
+
+
+// -------------------
+
+/*
+"wuwc@sas.upenn.edu", JSON.stringify({
+    "firstname" : "Wai",
+    "lastname" : "Wu",
+    "password" : "password2",
+    "status" : "Wai's status",
+    "affiliation" : "University of Pennsylvania",
+    "interests" : ["computer science"],
+    "birthday" : "April 20th 1996",
+
+
+    "online" : "false",
+    "posts" : JSON.stringify([]),
+    "friendposts" : JSON.stringify([0]),
+    "notifications" : JSON.stringify([])
+
+    */
+
+
+function loadProfile(jsonResponse) {
+  // TODO where is this key from??? 
+  var key = jsonResponse['key'];
+  var values = jsonResponse['values']; 
+ 
+ // TODO: 
+  $('#profile-table').append(createFriendButton(key, 1));
+
+  console.log("values of user object is ", values );
+  $('#profile-table').append(createProfileElementSingle(values['firstname'], "firstname"));
+  $('#profile-table').append(createProfileElementSingle(values['lastname'], "lastname"));
+  $('#profile-table').append(createProfileElementSingle(values['status'], "status"));
+ $('#profile-table').append(createProfileElementSingle(values['affiliation'], "affiliation"));
+   $('#profile-table').append(createProfileElementSingle(values['birthday'], "birthday"));
+
+
+  $('#profile-table').append(createProfileElementMany(values['interests'], "interests"));
+}
+
+function createFriendButton(divID, friendInt) {
+
+  // Assign post id as id of the comment box 
+  var elem = $('<div/>', {
+    id: divID, 
+  });
+
+  var addFriend; 
+  if (friendInt == "0") { 
+                   addFriend = "Add Friend";
+     } else if (friendInt == "1") {
+                   addFriend = "Request Sent";
+     } else if (friendInt == "2") { 
+                   addFriend = "Already Added";
+     } else {   
+                   addFriend = "Already Friends";
+    }    
+
+  elem
+    // label
+    .append($('<label/>').text(addFriend))
+    // button
+    .append($('<input/>', {
+      value: "Post",
+      type: "button",
+      // Sends a post first 
+      click: function() {     
+          // Format json object   
+          var formData = {
+              'user'  : key
+        // note no comment id here, it is generated backend 
+           };
+
+          $.post('/addfriend', formData, function(response) {
+                console.log("sent friend request"); 
+            });       
+        
+      }
+    }))
+  console.log("returning comment elements");
+  return elem;
+}
+
+
+function createProfileElementSingle(value, divID) {
+   var elem = $('<div/>');
+
+  elem.append(
+      $('<div/>', {style: 'width: 50%; display: inline-box'}).text(divID + ' : ' )
+    ); 
+   elem.append(
+      $('<div/>', {style: 'width: 50%; display: inline-box'}).text(value)
+    ); 
+   
+  console.log("returning profile element: ", divID);
+
+  return elem;
+}
+
+function createProfileElementMany(values, divID) {
+   var elem = $('<div/>');
+
+
+  elem.append(
+      $('<div/>', {style: 'width: 50%; display: inline-box'}).text('<b>' + divID + ' : ' + '</b>')
+    ); 
+
+  console.log("values are: " + values);
+  for (var i = 0; i < values.length; i++) {
+    var value = values[i];
+    elem.append(
+    $('<div/>', {style: 'width: 50%; display: inline-box'}).text(value)
+    ); 
+  }   
+   
+  console.log("returning profile element: ", divID);
+
+  return elem;
+}
+
+
+function loadPosts(jsonResponse) {
+  var posts = jsonResponse;
+  for (var i = 0; i < posts.length; i++) {
+      $('#post-table').append(createPostElement(posts[i]));
+    }
+}
+
+
+
+
+function createPostElement(post) {
+  var elem = $('<div/>', {
+      id: "post-" + post.key,
+      class: 'post-div'
+    });
+
+  elem
+      .append(createPostContent(post))
+      .append(createCommentButton(post.key));
+  console.log("returning post element: ", elem);
+
+  return elem;
+}
+
+// // Debug 
+//    console.log("A",  post['key']);
+//    console.log("comment ID ",  post['value']['commentIDs'][i]);
+//     console.log("comment Texts ",post['value']['commentTexts'][i]);
+//      console.log("comment Owners ",post['value']['commentOwners'][i]);
+
+function createPostContent(post) {
+  var elem = $('<div/>');
+  
+  // Appending Text of posts 
+    elem.append(
+      $('<div/>', {style: 'width: 50%; display: inline-box'}).text(post.value.text)
+    ); 
+  
+  console.log("post is: ", post.value);
+  
+  // Appending comments 
+  for (var i = 0; i < post['value']['commentTexts'].length; i++) {    
+    elem.append(createCommentElement
+      (post['key'],
+      post['value']['commentIDs'][i], 
+      post['value']['commentTexts'][i],
+      post['value']['commentOwners'][i]));
+  } 
+  
+    console.log("returning post content with comments");
+
+  return elem;
+}
+
+
+function createCommentButton(id) {
+  // Assign post id as id of the comment box 
+  var elem = $('<div/>', {
+    id: id, 
+  });
+
+  elem
+    // label
+    .append($('<label/>').text("Add new comment:"))
+    // text field
+    .append($('<input/>', {
+      type: "text",
+        id: "comment-box-" + id,
+    }))
+    // button
+    .append($('<input/>', {
+      value: "Post",
+      type: "button",
+      // Sends a post first 
+      click: function() {     
+          // Format json object   
+          var formData = {
+        'text'  : $('#comment-box-' + id).val(), 
+        'postID'  : id,
+        'firstname' : firstname, 
+        'lastname' : lastname,  
+        // note no comment id here, it is generated backend 
+      };
+      // var postingData = JSON.stringify(formData);  
+
+      $.post('/addcomment', formData, function(response) {
+          // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+          var jsonRes = JSON.parse(response);
+          console.log("Json response is: ", jsonRes);
+          var commentToAdd = createCommentElement(jsonRes.values.postID, jsonRes.key,jsonRes.values.text, jsonRes.values.owner);
+          commentToAdd.insertBefore('#' + id);
+        } 
+      );
+        }       
+        /*var newComment = $('<div style="border: 1px solid black;" />').text(
+          
+        )*/
+        
+     }))
+     console.log("returning comment elements");
+
+
+  return elem;
+}
+
+
+function createCommentElement(postKey, commentID, commentText, commentOwner) {
+
+  var commentDiv = $('<div/>', {
+    id: "" + postKey + "*" + commentID,
+    text: commentOwner + " says " + commentText
+  });
+
+  return commentDiv;
+}
+
+
+
+  </script>
+
+</body>
+</html>
+
+  

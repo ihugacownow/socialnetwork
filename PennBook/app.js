@@ -23,15 +23,15 @@ var testUser = {"key" : "wuwc@sas.upenn.edu",
                                   "firstname" : "Wai",
                                   "lastname" : "Wu",
                                   "password" : "password2",
-                                  "status" : "Wai's status",
+                                  "status" : "Wais status",
                                   "affiliation" : "University of Pennsylvania",
                                   "interests" : ["computer science", "Nets 212"],
                                   "birthday" : "April 20th 1996",
                                   "online" : "false",
-                                  "posts" : JSON.stringify([]),
-                                  "comments" : JSON.stringify({"array" : [0]}),
-                                  "friendposts" : JSON.stringify([0]),
-                                  "notifications" : JSON.stringify([])
+                                  "posts" : [],
+                                  "comments" : [],
+                                  "friendposts" : [0],
+                                  "notifications" : []
                                }};
 app.use(session(sess));
 app.use(express.bodyParser());
@@ -47,7 +47,7 @@ app.get('/', routes.get_main);
 
 app.get('/profiles', function(req, res) {
 
-   res.render('profile.ejs', { 
+   res.render('profileTest.ejs', { 
       message: "", 
       footer: "Full Name: Wai Wu, SEAS Login: wuwc"
    });
@@ -65,10 +65,10 @@ app.get('/getProfile', function(req, res) {
                                   "interests" : ["computer science", "Nets 212"],
                                   "birthday" : "April 20th 1996",
                                   "online" : "false",
-                                  "posts" : JSON.stringify([]),
-                                  "comments" : JSON.stringify({"array" : [0]}),
-                                  "friendposts" : JSON.stringify([0]),
-                                  "notifications" : JSON.stringify([])
+                                  "posts" : [],
+                                  "comments" : [],
+                                  "friendposts" : [0],
+                                  "notifications" : []
                                }});
    console.log("sending here"); 
    res.send(posts);
@@ -122,6 +122,7 @@ app.get('/profile', function(req, res) {
       message: "", 
       footer: "Full Name: Wai Wu, SEAS Login: wuwc"
    });
+
 
 })
 

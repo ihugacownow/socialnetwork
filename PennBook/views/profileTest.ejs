@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>NewsFeed</title>
+    <title>1 Col Portfolio - Start Bootstrap Template</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -40,9 +40,15 @@
     var tagButton; 
     var namesearch; 
     var allUsers;
+    var userID; // TODO: Hard code to 0 
    
 
     $(function(){
+      // hard code: 
+      posteeID = 0;
+      posterID = 1;
+
+
         var availableTags = [
       "Brian sucks :((",
       "ActionScript",
@@ -101,8 +107,9 @@ var setUpSearchBar = function(elem) {
   elem
     // button
     .append($('<input/>', {
-      value: "Get",
+      value: "Search",
       type: "button",
+      class: 'btn btn-primary',
       // Sends a post first 
       click: function() {     
             // Format json object   
@@ -122,15 +129,12 @@ var setUpSearchBar = function(elem) {
 
 var refreshPage = function() {
 
-    $.get('/getPosts', function(response) {
-        // Reset the table first 
-        console.log("Response from server: ", response);
-        var posts = [
+   var posts = [
            {'key' : "0", 
            'inx' : "0",
            'value' : {"owner1"  : "Brian", 
                      'owner2'   : "Wai", 
-                     'text'     : "yoooooo my post is this", 
+                     'text'     : "Seriously y post is this", 
                      'commentTexts' : ["comment 1", "comment 2"],                         
                      'commentOwners' : ["Brian", "Wai Commenter"],
                      'commentIDs'    : ["1","2"]
@@ -153,8 +157,35 @@ var refreshPage = function() {
 
      ];
 
-        postTable.html(''); // search specifics later 
-        
+
+
+  var userJSON = {"key" : "wuwc@sas.upenn.edu", 
+                              "values" : {
+                                  "firstname" : "Wai",
+                                  "lastname" : "Wu",
+                                  "password" : "password2",
+                                  "status" : "Wais status",
+                                  "affiliation" : "University of Pennsylvania",
+                                  "interests" : ["computer science", "Nets 212"],
+                                  "birthday" : "April 20th 1996",
+                                  "online" : "false",
+                                  "posts" : [],
+                                  "comments" : [],
+                                 "friendposts" : [0],
+                                  "notifications" : []
+                               }};
+
+    loadProfile(userJSON);
+    loadAddPost();
+
+
+
+    $.get('/getPosts', function(response) {
+        // Reset the table first 
+        console.log("Response from server: ", response);
+       
+
+        postTable.html(''); // search specifics later         
         loadPosts(posts);
         //TODO: Testing 
         // loadPosts(JSON.parse(response));  
@@ -162,9 +193,211 @@ var refreshPage = function() {
     console.log("post table is: ", postTable);
 }
 
+// Creating the add posts part 
+// Load Profile happens here 
+function loadAddPost() {
+
+ 
+ // TODO: 
+  $('#addPost-table').append( $('<div/>', {style: 'width: 50%; text-align: center; display: inline-box; font-size: 30px;'}).text("Add Posts")
+    );
+
+   $('#addPost-table').append(createAddButton(posterID, posteeID));
+
+}
+
+function createAddButton(posterID, posteeID) {
+  // Assign post id as id of the comment box 
+  var elem = $('<div/>', {
+        id: "createAddButton", 
+  });
+
+
+  elem
+    // label
+    .append($('<label/>').text("Add new post:"))
+    // text field
+    .append($('<input/>', {
+        type: "text",
+        style: "margin: 7px",
+        id: "post-add",
+    }))
+
+    // button
+    .append($('<input/>', {
+      value: "Post",
+      type: "button",
+      class: 'btn btn-primary',
+      // Sends a post first 
+      click: function() {     
+            // Format json object   
+            var formData = {
+                'text'  : $('#post-add').val(), 
+                'owner2' : posteeID, 
+                'owner1' : posterID,  
+                // note no comment id here, it is generated backend 
+            };
+            // var postingData = JSON.stringify(formData);  
+
+              //$.post('/addpost', formData, function(response) {
+                    // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+                    console.log("Done with posting");
+
+                    // Hard code TODO
+                    var newPost = {'key' : "0", 
+                                  'inx' : "0",
+                                  'value' : {"owner1"  : "Brian", 
+                                             'owner2'   : "Wai", 
+                                             'text'     : "Seriously y post is this", 
+                                             'commentTexts' : ["comment 1", "comment 2"],                         
+                                             'commentOwners' : ["Brian", "Wai Commenter"],
+                                             'commentIDs'    : ["1","2"]
+                                              }                       
+                 
+                    };
+                    
+                    var postToAdd = createPostElement(newPost);
+                    postTable.append(postToAdd);
+              //  } 
+           // );
+        }       
+        /*var newComment = $('<div style="border: 1px solid black;" />').text(
+            
+        )*/
+        
+     }))
+     console.log("returning comment elements");
+
+
+  return elem;
+}
+
+
+
+// Load Profile happens here 
+function loadProfile(jsonResponse) {
+  // TODO where is this key from??? 
+  var key = jsonResponse['key'];
+  var values = jsonResponse['values']; 
+ 
+ // TODO: 
+  $('#profile-table').append( $('<div/>', {style: 'width: 50%; text-align: center; display: inline-box; font-size: 30px;'}).text("Profile Information")
+    );
+
+  $('#profile-table').append(createFriendButton(key, 0));
+
+  console.log("values of user object is ", values );
+  $('#profile-table').append(createProfileElementSingle(values['firstname'], "firstname"));
+  $('#profile-table').append(createProfileElementSingle(values['lastname'], "lastname"));
+  $('#profile-table').append(createProfileElementSingle(values['status'], "status"));
+ $('#profile-table').append(createProfileElementSingle(values['affiliation'], "affiliation"));
+   $('#profile-table').append(createProfileElementSingle(values['birthday'], "birthday"));
+
+
+  $('#profile-table').append(createProfileElementMany(values['interests'], "interests"));
+}
+
+
+
+function createProfileElementSingle(value, divID) {
+   var elem = $('<div/>');
+
+  elem.append(
+      $('<div/>', {style: 'width: 50%; display: inline-box; font-size: 20px;'}).text(divID + ' : ' + value)
+    ); 
+  elem.append(
+      '<hr/>'
+    ); 
+   // elem.append(
+   //    $('<div/>', {style: 'width: 50%; display: inline-box; text-align: center; font-size: 20px;'}).text(value)
+   //  ); 
+
+    // style: "text-align: center; font-size: 20px;"
+   
+  console.log("returning profile element: ", divID);
+
+  return elem;
+}
+
+function createProfileElementMany(values, divID) {
+   var elem = $('<div/>');
+
+
+  elem.append(
+       $('<div/>', {style: 'width: 50%; display: inline-box; font-size: 20px;'}).text(divID + ':')
+    ); 
+
+  console.log("values are: " + values);
+  for (var i = 0; i < values.length; i++) {
+    var value = values[i];
+    var count = i + 1;
+    var countSt = count + ') ';
+    elem.append(
+    $('<div/>', {style: 'width: 50%; display: inline-box'}).text(countSt + value)
+    ); 
+  }   
+   
+  console.log("returning profile element: ", divID);
+
+  return elem;
+}
+
+
+
+
+function createFriendButton(divID, friendInt) {
+
+  // Assign post id as id of the comment box 
+  var elem = $('<div/>', {
+    id: divID, 
+  });
+
+  var addFriend; 
+  if (friendInt == "0") { 
+                   addFriend = "Add Friend";
+     } else if (friendInt == "1") {
+                   addFriend = "Request Sent";
+     } else if (friendInt == "2") { 
+                   addFriend = "Already Added";
+     } else {   
+                   addFriend = "Already Friends";
+    }    
+
+  elem
+    // label
+    .append($('<label/>').text(addFriend))
+    // button
+    .append($('<input/>', {
+      value: "Post",
+      type: "button",
+      class: 'btn btn-primary',
+      // Sends a post first 
+      click: function() {     
+          // Format json object   
+          var formData = {
+              'user'  : key
+        // note no comment id here, it is generated backend 
+           };
+
+          $.post('/addfriend', formData, function(response) {
+                console.log("sent friend request"); 
+            });       
+        
+      }
+    }))
+    .append('<hr/>')
+
+  console.log("returning comment elements");
+  return elem;
+}
+
+
+// Load Posts all happen after here 
 
 function loadPosts(jsonResponse) {
     var posts = jsonResponse;
+    $('#post-table').append( $('<div/>', {style: 'width: 50%; text-align: center; display: inline-box; font-size: 30px;'}).text("List of Posts")
+    );
     for (var i = 0; i < posts.length; i++) {
         $('#post-table').append(createPostElement(posts[i]))
             .append($("<hr/>"));
@@ -175,7 +408,8 @@ function loadPosts(jsonResponse) {
 function createPostElement(post) {
     var elem = $('<div/>', {
         id: "post-" + post.key,
-        class: 'row'
+        class: 'row',
+        style: "border: 1px solid #d0d0d0; padding: 10px;"
     });
 
     elem
@@ -337,20 +571,40 @@ function createCommentElement(postKey, commentID, commentText, commentOwner) {
                <div class="ui-widget">
                   <label for="tags">Tags: </label>
                   <input id="tags" style="width:50%;">
-                  <div id="namesearch"/> 
+                  <div id="namesearch" style="width: 40" /> 
                </div> 
             </div>
         </div>
         <hr/>
 
+         <!-- Profile Tables -->
+         <div class="row">
+
+        <div id="profile-table" class="row col-lg-3" style="background-color: #d0d0d0; ">
+        </div>
+
+
         <!-- Post Tables -->
 
-        <div id="post-table" class="row">
+        <div id="post-table" class="row col-lg-9">
+          <h1> List of Posts <h1>
         </div>
+      </div>
 
         <!-- /.row -->
 
         <hr>
+
+
+        <!-- Add Post Part  -->
+
+         <div id="addPost-table" class="row">
+          <h1> Add a new post <h1>
+         </div>     
+
+        <hr>
+
+
 
     
 
