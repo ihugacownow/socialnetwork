@@ -34,6 +34,8 @@
     var tagButton; 
     var namesearch; 
     var allUsers;
+    var posteeID;
+    var posterID;
 
   console.log("session is: asdfdsfsdafdsfsafdfadsfdsfsafsfs");
   var c = '<%- JSON.stringify(session) %>';
@@ -326,9 +328,12 @@ function createFriendButton(divID, friendInt) {
       click: function() {     
           // Format json object   
           var formData = {
-              'user'  : key
+              'user2'  : posteeID,
+              'user1'  : posterID
         // note no comment id here, it is generated backend 
            };
+
+           console.log("add friend formdata: ", formData);
 
           $.post('/addfriend', formData, function(response) {
                 console.log("sent friend request"); 
@@ -454,7 +459,8 @@ function createCommentButton(id, postInx) {
 
                var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, commentText, firstname + lastname);
           commentToAdd.insertBefore('#' + id);
-                refreshPage(); 
+                refreshPage(parsedUser); 
+                console.log("Done refreshing after comment added");
         } 
       );
     }       
@@ -637,7 +643,13 @@ function createCommentElement(postKey, commentID, commentText, commentOwner) {
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">PennBook</a>
+                 <a class="navbar-brand" href="/">PennBook</a>
+                   <ul class="nav navbar-nav">
+                      <li>
+                          <a href="/logout">Logout</a>
+                      </li>
+                   
+                  </ul>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">

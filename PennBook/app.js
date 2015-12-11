@@ -148,6 +148,10 @@ app.use('/css', express.static('views/css'));
 app.use('/js', express.static('views/js'));
 app.post('/addpost', routes.post_addpost);
 app.post('/addfriend', routes.post_addfriend);
+app.get('/logout', function(req, res) {
+  req.session.ID = ''; 
+  res.redirect('/');
+});
 // app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */
