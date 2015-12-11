@@ -29,6 +29,7 @@ app.use(express.logger("default"));
    POST is often used when submitting web forms ('method="post"'). */
 
 app.get('/', routes.get_main);
+app.get('/getPostsAjax', routes.get_postsAjax);
 app.get('/getPosts', function(req, res) {
    posts = JSON.stringify([
                {'key' : "0", 
@@ -64,18 +65,20 @@ app.get('/getPosts', function(req, res) {
 app.post('/checklogin', routes.post_login);
 app.get('/signup', routes.get_signup);
 app.post('/createaccount', routes.post_createAccount);
-app.get('/restaurants', routes.post_testRestaurants);
-// app.get('/restaurants', routes.post_restaurants);
+//app.get('/restaurants', routes.post_testRestaurants);
+app.get('/restaurants', routes.post_restaurants);
 
 app.post('/addrestaurant', routes.post_addRestaurant);
 app.get('/logout', routes.get_logout);
 app.post('/ajaxrestaurant', routes.post_ajaxRestaurant);
 app.get('/getajaxrestaurants', routes.get_ajaxRestaurants); 
 app.post('/delete', routes.post_deleteRestaurant);
-app.post('/restaurants/:firstname:lastname:ID', routes.post_profile);
+app.post('/restaurants/:ID', routes.post_profile);
 app.post('/addcomment', routes.post_addcomment);
 app.post('/search', routes.post_search);
 app.get('/notifications', routes.get_notifications);
+app.post('/addpost', routes.post_addpost);
+app.post('/addfriend', routes.post_addfriend);
 // app.get('/friendrequest', routes_post_friendrequest); //TODO: upon clicking friend request button, send notification
 
 /* Run the server */

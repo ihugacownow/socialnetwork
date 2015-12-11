@@ -31,7 +31,7 @@ var users = [
 		"birthday" : "April 20th 1996",
 		"online" : "false",
 		"posts" : JSON.stringify([0]),
-		"comments" : JSON.stringify([]),
+		"comments" : JSON.stringify([0]),
 		"friendposts" : JSON.stringify([0]), 
 		"notifications" : JSON.stringify([])
 	})
@@ -45,7 +45,7 @@ var users = [
 		"birthday" : "April 20th 1996",
 		"online" : "false",
 		"posts" : JSON.stringify([]),
-		"comments" : JSON.stringify({"array" : [0]}),
+		"comments" : JSON.stringify([1]),
 		"friendposts" : JSON.stringify([0]),
 		"notifications" : JSON.stringify([])
 	})],
@@ -58,8 +58,8 @@ var users = [
 		"interests" : ["computer science"],
 		"birthday" : "April 20th 1996",
 		"online" : false,
-		"posts" : JSON.stringify({"array" : []}),
-		"comments" : JSON.stringify({"array" : [0]}),
+		"posts" : JSON.stringify([]),
+		"comments" : JSON.stringify([]),
 		"friendposts" : JSON.stringify([0])
 	})]
 ];
@@ -70,7 +70,7 @@ var posts = [
 		"owner1" : 0, 
 		"owner2" :1, 				
 		"text" : "love u",
-		"commentIDs" : JSON.stringify([0])
+		"commentIDs" : JSON.stringify([0, 1])
 	})]
 ];
 
@@ -78,7 +78,7 @@ var posts = [
 var comments = [
 	["0", JSON.stringify({
 		"postID" : 0,
-		"owner" : 1,
+		"owner" : 0,
 		"text" : "love u too sexy",
 		"firstname" : "Brian",
 		"lastname" : "Hirsh",
