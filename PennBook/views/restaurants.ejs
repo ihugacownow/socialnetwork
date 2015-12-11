@@ -133,6 +133,7 @@
 
 var setUpSearchBar = function(elem) {
     console.log("Seting up search bar");
+}
 
 
 window.onload = function() {
@@ -140,7 +141,10 @@ window.onload = function() {
   console.log("first name here on loadddddd is: ," , firstname);
 
 	postTable = $('#post-table');
+}
 
+var setUpSearchBar = function(elem) {
+	console.log("Seting up search bar");
   elem
     // button
     .append($('<input/>', {
@@ -165,7 +169,7 @@ window.onload = function() {
 
 var refreshPage = function() {
 
-    $.get('/getPosts', function(response) {
+    $.get('/getPostsAjax', function(response) {
         // Reset the table first 
         console.log("Response from server: ", response);
         var posts = [
@@ -322,28 +326,7 @@ function createCommentButton(id, postInx) {
       class: 'btn btn-primary',
       // Sends a post first 
       click: function() {     
-            // Format json object   
-            var formData = {
-                'text'  : $('#comment-box-' + id).val(), 
-                'postID'    : id,
-                'firstname' : firstname, 
-                'lastname' : lastname,  
-                // note no comment id here, it is generated backend 
-            };
-            // var postingData = JSON.stringify(formData);  
-
-            $.post('/addcomment', formData, function(response) {
-                    // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
-                    var jsonRes = JSON.parse(response);
-                    console.log("Json response is: ", jsonRes);
-                    var commentToAdd = createCommentElement(jsonRes.values.postID, jsonRes.key,jsonRes.values.text, jsonRes.values.owner);
-                    commentToAdd.insertBefore('#' + id);
-                } 
-            );
-        }       
-        /*var newComment = $('<div style="border: 1px solid black;" />').text(
-            
-=======
+         
       		// Format json object  	
           console.log("first name here is: ," , firstname);
       		var formData = {
@@ -352,8 +335,8 @@ function createCommentButton(id, postInx) {
 	 			'postID'	: id,
 	 			'firstname' : firstname, 
 	 			'lastname' : lastname,  
-        'userID'  : userID,
-        'postInx' : postInx
+        		'userID'  : userID,
+        		'postInx' : postInx
 
 	 			// note no comment id here, it is generated backend 
  			};
@@ -365,16 +348,14 @@ function createCommentButton(id, postInx) {
  					console.log("Json response is: ", jsonRes);
           
 
-          var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, commentText, firstname + lastname);
+       		   var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, 	commentText, firstname + lastname);
 
- 					commentToAdd.insertBefore('#' + id);
-          refreshPage(); 
+ 						commentToAdd.insertBefore('#' + id);
+          		refreshPage(); 
  				} 
  			);
     }      	
-      	/*var newComment = $('<div style="border: 1px solid black;" />').text(
-        	
-        )*/
+      
         
      }))
      console.log("returning comment elements");
@@ -383,6 +364,28 @@ function createCommentButton(id, postInx) {
   return elem;
 }
 
+/*
+   // Format json object   
+        //     var formData = {
+        //         'text'  : $('#comment-box-' + id).val(), 
+        //         'postID'    : id,
+        //         'firstname' : firstname, 
+        //         'lastname' : lastname,  
+        //         // note no comment id here, it is generated backend 
+        //     };
+        //     // var postingData = JSON.stringify(formData);  
+
+        //     $.post('/addcomment', formData, function(response) {
+        //             // TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+        //             var jsonRes = JSON.parse(response);
+        //             console.log("Json response is: ", jsonRes);
+        //             var commentToAdd = createCommentElement(jsonRes.values.postID, jsonRes.key,jsonRes.values.text, jsonRes.values.owner);
+        //             commentToAdd.insertBefore('#' + id);
+        //         } 
+        //     );
+        // }       
+            
+            */
 
 
 function createCommentElement(postKey, postInx, commentID, commentText, commentOwner) {
