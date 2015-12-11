@@ -1,13 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+  <head><title>Map</title>
 
-<head>
-
-    <meta charset="utf-8">
+  	<meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+  <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    body {
+      padding-top: 40px;
+	  padding-bottom: 40px;
+ 	  background-color: white;
+         }
+    .login-box {
+    max-width: 330px;
+    margin: 0 auto;
+   		}
+    .login-box .form-control {
+      margin-bottom: 10px;
+    }
+  </style>
+ 
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+  </script>
+
+  <script type="text/javascript">
+
+	var postTable; 
+  var firstname;
+  var lastname; 
+  var email; 
+  var userID; 
+
+    console.log("session is: asdfdsfsdafdsfsafdfadsfdsfsafsfs");
+    var c = '<%- JSON.stringify(session) %>';
+    console.log("session id is, ", JSON.parse(c));
+  //firstname = <%= session.firstname %>;
+  //lastname = <%= session.lastname %>;
+  //email = <%= session.email %>;
+  //userID = <%= session.ID %>;
+  var cc = JSON.parse(c);
+  firstname = cc.firstname;
+  lastname = cc.lastname;
+  email = cc.email;
+  userID = cc.ID;
+
+  console.log("loaded first name is: ", firstname);
+
+
+  </script>
+</head>
 
     <title>NewsFeed</title>
 
@@ -21,17 +67,7 @@
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-  <!--  This is for the autocomplete widget 
- -->
 
-
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
     <script>
 
     var postTable; 
@@ -98,6 +134,13 @@
 var setUpSearchBar = function(elem) {
     console.log("Seting up search bar");
 
+
+window.onload = function() {
+  
+  console.log("first name here on loadddddd is: ," , firstname);
+
+	postTable = $('#post-table');
+
   elem
     // button
     .append($('<input/>', {
@@ -159,7 +202,18 @@ var refreshPage = function() {
         //TODO: Testing 
         // loadPosts(JSON.parse(response));  
     });
-    console.log("post table is: ", postTable);
+   		 console.log("post table is: ", postTable);
+ 		 console.log("Refreshing tehe page");
+	$.get('/getPostsAjax', function(res) {
+		// Reset the table first 
+		console.log("Response from server: ", response);
+		postTable.html(''); // search specifics later 
+    var responseJSON = JSON.parse(res); 
+    var response = responseJSON.posts; 
+    console.log("Prased response is: ", response);
+		loadPosts(response); 
+	});
+	console.log("post table is: ", postTable);
 }
 
 
@@ -173,15 +227,16 @@ function loadPosts(jsonResponse) {
 
 
 function createPostElement(post) {
-    var elem = $('<div/>', {
-        id: "post-" + post.key,
-        class: 'row'
-    });
+   
+	var elem = $('<div/>', {
+  		id: "post-" + post.key,
+    	class: 'post-div'
+  	});
 
-    elem
-        .append(createPostContent(post))
-        .append(createCommentSection(post));
-  console.log("returning post element: ", elem);
+	elem
+  		.append(createPostContent(post))
+    	.append(createCommentButton(post.key, post.inx));
+  			console.log("returning post element: ", elem);
 
   return elem;
 }
@@ -228,6 +283,15 @@ function createPostContent(post) {
             post['value']['commentTexts'][i],
             post['value']['commentOwners'][i]));
     } 
+=======
+	for (var i = 0; i < post['value']['commentTexts'].length; i++) {    
+		elem.append(createCommentElement
+			(post['key'], post['inx'],
+			post['value']['commentIDs'][i], 
+			post['value']['commentTexts'][i],
+			post['value']['commentOwners'][i]));
+	} 
+>>>>>>> 504f044957e6cd0c36764ce2c7c03515bc12d81a
   
     console.log("returning post content with comments");*/
 
@@ -235,8 +299,9 @@ function createPostContent(post) {
 }
 
 
-function createCommentButton(id) {
+function createCommentButton(id, postInx) {
   // Assign post id as id of the comment box 
+  var commentText = $('#comment-box-' + id).val(); 
   var elem = $('<div/>', {
         id: id, 
   });
@@ -278,6 +343,37 @@ function createCommentButton(id) {
         }       
         /*var newComment = $('<div style="border: 1px solid black;" />').text(
             
+=======
+      		// Format json object  	
+          console.log("first name here is: ," , firstname);
+      		var formData = {
+            
+	 			'text'	: $('#comment-box-' + id).val(), 
+	 			'postID'	: id,
+	 			'firstname' : firstname, 
+	 			'lastname' : lastname,  
+        'userID'  : userID,
+        'postInx' : postInx
+
+	 			// note no comment id here, it is generated backend 
+ 			};
+ 			// var postingData = JSON.stringify(formData);  
+
+ 			$.post('/addcomment', formData, function(response) {
+ 					// TODO: check comment json passed back  (values: postID, (key) ID, text, owner)
+ 					var jsonRes = JSON.parse(response);
+ 					console.log("Json response is: ", jsonRes);
+          
+
+          var commentToAdd = createCommentElement(id, postInx, (JSON.parse(response)).inx, commentText, firstname + lastname);
+
+ 					commentToAdd.insertBefore('#' + id);
+          refreshPage(); 
+ 				} 
+ 			);
+    }      	
+      	/*var newComment = $('<div style="border: 1px solid black;" />').text(
+        	
         )*/
         
      }))
@@ -288,12 +384,13 @@ function createCommentButton(id) {
 }
 
 
-function createCommentElement(postKey, commentID, commentText, commentOwner) {
 
-    var commentDiv = $('<div/>', {
-        id: "" + postKey + "*" + commentID,
-        text: commentOwner + " says " + commentText
-    });
+function createCommentElement(postKey, postInx, commentID, commentText, commentOwner) {
+  console.log("commentText is ;:: ", commentText);
+	var commentDiv = $('<div/>', {
+		id: "" + postKey + "*" + commentID,
+		text: commentOwner + " says " + commentText
+	});
 
     return commentDiv;
 }
