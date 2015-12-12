@@ -98,7 +98,7 @@
     namesearch = $('#namesearch');
 
     setUpSearchBar(namesearch, allUsers); 
-    refreshPage(); 
+    setInterval(refreshPage, 5000); 
 
 
 
@@ -140,7 +140,6 @@ var setUpSearchBar = function(elem, allUsers) {
 }
 
 var refreshPage = function() {   
-  console.log("Refreshing tehe page");
 	$.get('/getPostsAjax', function(res) {
 		// Reset the table first 
 		console.log("FRONTEND: Response from server: ", res);
