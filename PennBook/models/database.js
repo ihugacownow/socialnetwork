@@ -104,7 +104,6 @@ var myDB_getFriends = function(userID, route_callbck) {
 		if (err) {
 			route_callbck(err, null);
 		} else {
-			console.log("all friends: ", data);
 			route_callbck(null, data);
 		}
 	})
@@ -113,7 +112,6 @@ var myDB_getFriends = function(userID, route_callbck) {
 //function for getting all posts
 var myDB_getPosts = function(route_callbck) {
 	postDB.scanKeyValues(function(err, data) {
-		console.log("posts array that kvs gave us: ", data);
 		if (err) {
 			route_callbck(err, null);
 		} else {

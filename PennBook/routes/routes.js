@@ -40,7 +40,6 @@ var postLogin = function(req, res) {
 			} else if (data) {			
 				// Save username in session object and redirect to restaurant page
 				var json = JSON.parse(data.value);
-				console.log("req session values!!", json);
 				req.session.ID = data.inx;
 				req.session.firstname = json.firstname;
 				req.session.lastname = json.lastname;
@@ -116,7 +115,6 @@ var test = function(req, res) {
 	db.getComment("0", function(err, commentData) {
 
 	});
-	console.log("Finished");
 }
 
 
@@ -138,20 +136,16 @@ var postRestaurants = function(req, res) {
 			console.log("error:", err);
 		}
 		db.getPosts(function(err, posts) {
-			console.log("posts array that db gave us: ", posts);
 			var postsString = []
 			doPosts(postsString, posts, function(err, postsData) {
-				console.log("post data from doPostsstts data , " , postsData);
 				var filteredPosts = []
 				for (var i = 0; i < postsData.length; i++) {
 					if (contains(postsData[i].value.owner1, friendsArr) == true ||
 						contains(postsData[i].value.owner2, friendsArr)  == true) {
-						console.log("WE HAVE A VIEWABLE POST");
 						filteredPosts.push(postsData[i]);
 					}
 
 				}
-				console.log("FILTERED POSTS: ". filteredPosts);
 				res.render('restaurants.ejs', {session : req.session, message : "", posts : filteredPosts});
 			});	
 		});
@@ -191,10 +185,8 @@ var doComments = function (post, commentIDs, callback) {
 			inner_callback();
 		});		
 	}, function(err){
-		console.log("arr1: ", arr1);
 		post.value.commentOwners = arr1;
 		post.value.commentTexts = arr2;
-		console.log("current post's commentOwners: ", post.value.commentOwners);
 		// this function gets called when all items get processed
 		// if any of them resulted in an error, we'll have an error here
 		// otherwise, data will be a list
@@ -209,7 +201,6 @@ var doPosts = function (arr, posts, callback) {
 	async.forEachOf(posts, function(post, key, inner_callback){
 
 		var commentIDlist = post.value.commentIDs;
-		console.log("commentIDlist: ", post.value.commentIDs);
 				doComments(post, JSON.parse(commentIDlist), function(err) {
 					inner_callback();
 				});
@@ -439,7 +430,6 @@ var postSearch = function(req, res) {
 			//make an array of all the users with the given first and last name
 			var validUsers = [];
 			for (var i = 0; i < users.length; i++) {
-				console.log("Users[i].value is: ", users[i].value);
 				if (users[i].value.firstname == firstname && users[i].value.lastname == lastname) {
 					validUsers.push({"firstname": firstname, "lastname": lastname, "ID": users[i].key});
 				}
@@ -485,25 +475,16 @@ var getPostsAjax = function(req, res) {
 		}
 		//get all the posts
 		db.getPosts(function(err, posts) {
-			console.log("posts array that db gave us: ", posts);
 			var postsString = []
 			doPosts(postsString, posts, function(err, postsData) {
-				console.log("post data from doP")
 				var filteredPosts = []
 				//only include posts such that one of the owners is friends with the user
 				for (var i = 0; i < postsData.length; i++) {
-					console.log("friends list: ", friendsArr);
-					console.log("owner 1 and owner 2:", postsData[i].value.owner1, postsData[i].value.owner2);
 					if (contains(postsData[i].value.owner1, friendsArr) == true ||
 						contains(postsData[i].value.owner2, friendsArr) == true) {
-						console.log("WE HAVE A VIEWABLE POST");
-						console.log("friends list: ", friendsArr);
-						console.log("owner 1 and owner 2:", postsData[i].value.owner1, postsData[i].value.owner2);
 						filteredPosts.push(postsData[i]);
 					}
 				}
-				console.log("filtered POSTS: ", filteredPosts);
-				console.log("-------------- BACKEND: Sending posts data from getPostsAjax: ",
 				  {session : req.session, message : "", posts : postsData});
 				res.send(JSON.stringify({session : req.session, message : "", posts : filteredPosts}));
 			});	
